@@ -1,17 +1,40 @@
 package command
 
-import "fmt"
+import (
+	"fmt"
+	"schoperation/lethalloader/domain/config"
+)
 
-type StartupCommand struct {
+type mainConfigReader interface {
+	Read() (config.MainConfig, error)
 }
 
-func NewStartupCommand() StartupCommand {
-	return StartupCommand{}
+type StartupCommand struct {
+	mainConfigReader mainConfigReader
+}
+
+func NewStartupCommand(
+	mainConfigReader mainConfigReader,
+) StartupCommand {
+	return StartupCommand{
+		mainConfigReader: mainConfigReader,
+	}
 }
 
 func (cmd StartupCommand) Run() error {
 	fmt.Print("LethalLoader v0.0.1 ALPHA (expect bugs)\n")
 	fmt.Print("---------------------------------------\n\n")
+
+	mainConfig, err := cmd.mainConfigReader.Read()
+	if err != nil {
+		return err
+	}
+
+	if mainConfig.GameFilePath() == "" {
+		fmt.Print("It appears this is your first time. Setting up...\n")
+	}
+
+	//fmt.Printf("config: %s, %s\n", mainConfig.GameFilePath, mainConfig.SelectedProfile)
 
 	return nil
 }
