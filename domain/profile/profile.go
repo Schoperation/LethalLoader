@@ -13,7 +13,7 @@ type ProfileDto struct {
 
 type Profile struct {
 	name string
-	mods []mod.Mod
+	mods map[string]mod.Mod
 }
 
 func NewBlankProfile(dto ProfileDto) (Profile, error) {
@@ -23,14 +23,14 @@ func NewBlankProfile(dto ProfileDto) (Profile, error) {
 
 	return Profile{
 		name: dto.Name,
-		mods: []mod.Mod{},
+		mods: make(map[string]mod.Mod),
 	}, nil
 }
 
 func ReformProfile(dto ProfileDto) Profile {
-	mods := make([]mod.Mod, len(dto.Mods))
-	for i, modDto := range dto.Mods {
-		mods[i] = mod.ReformMod(modDto)
+	mods := make(map[string]mod.Mod, len(dto.Mods))
+	for _, modDto := range dto.Mods {
+		mods[modDto.Name] = mod.ReformMod(modDto)
 	}
 
 	return Profile{
@@ -39,10 +39,31 @@ func ReformProfile(dto ProfileDto) Profile {
 	}
 }
 
-func (pf Profile) Name() string {
+func (pf *Profile) Name() string {
 	return pf.name
 }
 
-func (pf Profile) Mod() []mod.Mod {
-	return pf.mods
+func (pf *Profile) Mods(name string) []mod.Mod {
+	mods := make([]mod.Mod, len(pf.mods))
+	i := 0
+	for _, pfMod := range pf.mods {
+		mods[i] = pfMod
+		i++
+	}
+
+	return mods
+}
+
+func (pf *Profile) AddMod(newMod mod.Mod) error {
+	if _, exists := pf.mods[newMod.Name()]; exists {
+		return fmt.Errorf("mod is already added")
+	}
+
+	pf.mods[newMod.Name()] = newMod
+	return nil
+}
+
+func (pf *Profile) RemoveMod(modToRemove mod.Mod) error {
+	delete(pf.mods, modToRemove.Name())
+	return nil
 }

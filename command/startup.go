@@ -34,7 +34,5 @@ func (cmd StartupCommand) Run() error {
 		fmt.Print("It appears this is your first time. Setting up...\n")
 	}
 
-	//fmt.Printf("config: %s, %s\n", mainConfig.GameFilePath, mainConfig.SelectedProfile)
-
 	return nil
 }
