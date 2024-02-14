@@ -7,8 +7,9 @@ import (
 )
 
 type ProfileDto struct {
-	Name string
-	Mods []mod.ModDto
+	Name     string
+	ModNames []string
+	Mods     []mod.ModDto
 }
 
 type Profile struct {
