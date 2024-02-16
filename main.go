@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"schoperation/lethalloader/adapter/file"
 	"schoperation/lethalloader/command"
+	"schoperation/lethalloader/command/task"
 	translator_config "schoperation/lethalloader/translator/config"
 )
 
@@ -12,9 +13,11 @@ func main() {
 
 	mainConfigTranslator := translator_config.NewMainConfigTranslator(mainConfigDao)
 
-	startupCommand := command.NewStartupCommand(mainConfigTranslator)
+	firstTimeSetupTask := task.NewFirstTimeSetupTask()
 
-	err := startupCommand.Run()
+	mainMenuCmd := command.NewMainMenuCommand(mainConfigTranslator, firstTimeSetupTask)
+
+	err := mainMenuCmd.Run()
 	if err != nil {
 		fmt.Printf("Error occurred: %v", err)
 	}

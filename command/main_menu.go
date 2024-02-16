@@ -9,19 +9,28 @@ type mainConfigReader interface {
 	Read() (config.MainConfig, error)
 }
 
-type StartupCommand struct {
-	mainConfigReader mainConfigReader
+type firstTimeSetupTask interface {
+	Do() error
 }
 
-func NewStartupCommand(
+type MainMenuCommand struct {
+	mainConfigReader   mainConfigReader
+	firstTimeSetupTask firstTimeSetupTask
+}
+
+func NewMainMenuCommand(
 	mainConfigReader mainConfigReader,
-) StartupCommand {
-	return StartupCommand{
-		mainConfigReader: mainConfigReader,
+	firstTimeSetupTask firstTimeSetupTask,
+) MainMenuCommand {
+	return MainMenuCommand{
+		mainConfigReader:   mainConfigReader,
+		firstTimeSetupTask: firstTimeSetupTask,
 	}
 }
 
-func (cmd StartupCommand) Run() error {
+func (cmd MainMenuCommand) Run() error {
+	clear()
+
 	fmt.Print("LethalLoader v0.0.1 ALPHA (expect bugs)\n")
 	fmt.Print("---------------------------------------\n\n")
 
@@ -32,6 +41,11 @@ func (cmd StartupCommand) Run() error {
 
 	if mainConfig.GameFilePath() == "" {
 		fmt.Print("It appears this is your first time. Setting up...\n")
+
+		err := cmd.firstTimeSetupTask.Do()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -8,7 +8,7 @@ import (
 
 type ProfileDto struct {
 	Name     string
-	ModNames []string
+	ModSlugs []string
 	Mods     []mod.ModDto
 }
 
@@ -53,6 +53,22 @@ func (pf *Profile) Mods(name string) []mod.Mod {
 	}
 
 	return mods
+}
+
+func (pf *Profile) Dto() ProfileDto {
+	modDtos := make([]mod.ModDto, len(pf.mods))
+	slugs := make([]string, len(pf.mods))
+	i := 0
+	for slug, mod := range pf.mods {
+		modDtos[i] = mod.Dto()
+		slugs[i] = slug
+	}
+
+	return ProfileDto{
+		Name:     pf.name,
+		ModSlugs: slugs,
+		Mods:     modDtos,
+	}
 }
 
 func (pf *Profile) AddMod(newMod mod.Mod) error {

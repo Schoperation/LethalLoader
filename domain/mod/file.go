@@ -58,3 +58,11 @@ func (file File) Path() string {
 func (file File) Sha256Sum() string {
 	return file.sha256sum
 }
+
+func (file File) Dto() FileDto {
+	return FileDto{
+		Name:      file.name,
+		Path:      file.path,
+		Sha256Sum: file.sha256sum,
+	}
+}

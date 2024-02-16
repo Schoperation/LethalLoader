@@ -32,17 +32,17 @@ func (dao ProfileDao) ReadByName(name string) (profile.ProfileDto, error) {
 
 	return profile.ProfileDto{
 		Name:     model.Name,
-		ModNames: model.Mods,
+		ModSlugs: model.Mods,
 	}, nil
 }
 
 func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 	model := profileModel{
 		Name: dto.Name,
-		Mods: dto.ModNames,
+		Mods: dto.ModSlugs,
 	}
 
-	newFile, err := os.Create(dao.fileNameFromProfileName(dto.Name))
+	file, err := os.Create(dao.fileNameFromProfileName(dto.Name))
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 		return err
 	}
 
-	_, err = newFile.Write(bytes)
+	_, err = file.Write(bytes)
 	if err != nil {
 		return err
 	}

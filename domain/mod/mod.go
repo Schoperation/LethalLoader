@@ -112,3 +112,19 @@ func (mod Mod) Files() []File {
 func (mod Mod) Dependencies() []string {
 	return mod.dependencies
 }
+
+func (mod Mod) Dto() ModDto {
+	fileDtos := make([]FileDto, len(mod.files))
+	for i, file := range mod.files {
+		fileDtos[i] = file.Dto()
+	}
+
+	return ModDto{
+		Name:         mod.name,
+		Version:      mod.version,
+		Author:       mod.author,
+		Description:  mod.description,
+		Files:        fileDtos,
+		Dependencies: mod.dependencies,
+	}
+}

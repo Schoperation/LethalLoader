@@ -7,24 +7,25 @@ import (
 
 type profileDao interface {
 	ReadByName(name string) (profile.ProfileDto, error)
+	Write(dto profile.ProfileDto) error
 }
 
-type modDao interface {
+type modListDao interface {
 	GetAllBySlugs(slugs []string) ([]mod.ModDto, error)
 }
 
 type ProfileTranslator struct {
 	profileDao profileDao
-	modDao     modDao
+	modListDao modListDao
 }
 
 func NewProfileTranslator(
 	profileDao profileDao,
-	modDao modDao,
+	modListDao modListDao,
 ) ProfileTranslator {
 	return ProfileTranslator{
 		profileDao: profileDao,
-		modDao:     modDao,
+		modListDao: modListDao,
 	}
 }
 
@@ -34,10 +35,19 @@ func (translator ProfileTranslator) GetByName(name string) (profile.Profile, err
 		return profile.Profile{}, err
 	}
 
-	profileDto.Mods, err = translator.modDao.GetAllBySlugs(profileDto.ModNames)
+	profileDto.Mods, err = translator.modListDao.GetAllBySlugs(profileDto.ModSlugs)
 	if err != nil {
 		return profile.Profile{}, err
 	}
 
 	return profile.ReformProfile(profileDto), nil
+}
+
+func (translator ProfileTranslator) Save(pf profile.Profile) error {
+	err := translator.profileDao.Write(pf.Dto())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
