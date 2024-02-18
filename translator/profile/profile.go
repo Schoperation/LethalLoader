@@ -6,7 +6,7 @@ import (
 )
 
 type profileDao interface {
-	ReadByName(name string) (profile.ProfileDto, error)
+	ReadAll() ([]profile.ProfileDto, error)
 	Write(dto profile.ProfileDto) error
 }
 
@@ -29,18 +29,23 @@ func NewProfileTranslator(
 	}
 }
 
-func (translator ProfileTranslator) GetByName(name string) (profile.Profile, error) {
-	profileDto, err := translator.profileDao.ReadByName(name)
+func (translator ProfileTranslator) GetAll(name string) ([]profile.Profile, error) {
+	profileDtos, err := translator.profileDao.ReadAll()
 	if err != nil {
-		return profile.Profile{}, err
+		return nil, err
 	}
 
-	profileDto.Mods, err = translator.modListDao.GetAllBySlugs(profileDto.ModSlugs)
-	if err != nil {
-		return profile.Profile{}, err
+	profiles := make([]profile.Profile, len(profileDtos))
+	for i, dto := range profileDtos {
+		dto.Mods, err = translator.modListDao.GetAllBySlugs(dto.ModSlugs)
+		if err != nil {
+			return nil, err
+		}
+
+		profiles[i] = profile.ReformProfile(dto)
 	}
 
-	return profile.ReformProfile(profileDto), nil
+	return profiles, nil
 }
 
 func (translator ProfileTranslator) Save(pf profile.Profile) error {

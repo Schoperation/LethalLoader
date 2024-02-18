@@ -30,7 +30,7 @@ type fileModel struct {
 }
 
 func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
-	file, err := os.ReadFile("mod_list.json")
+	file, err := os.ReadFile("mods.json")
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
 }
 
 func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
-	file, err := os.ReadFile("mod_list.json")
+	file, err := os.ReadFile("mods.json")
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (dao ModListDao) SaveAll(dtos []mod.ModDto) error {
 		}
 	}
 
-	file, err := os.Create("mod_list.json")
+	file, err := os.Create("mods.json")
 	if err != nil {
 		return err
 	}

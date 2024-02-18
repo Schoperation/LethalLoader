@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"os"
 	"schoperation/lethalloader/domain/profile"
-	"strings"
 )
 
 type ProfileDao struct{}
@@ -18,8 +17,33 @@ type profileModel struct {
 	Mods []string `json:"mods"`
 }
 
+func (dao ProfileDao) ReadAll() ([]profile.ProfileDto, error) {
+	file, err := os.ReadFile("profiles.json")
+	if err != nil {
+		return nil, err
+	}
+
+	models := make(map[string]profileModel)
+	err = json.Unmarshal(file, &models)
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]profile.ProfileDto, len(models))
+	i := 0
+	for _, model := range models {
+		dtos[i] = profile.ProfileDto{
+			Name:     model.Name,
+			ModSlugs: model.Mods,
+		}
+		i++
+	}
+
+	return dtos, nil
+}
+
 func (dao ProfileDao) ReadByName(name string) (profile.ProfileDto, error) {
-	file, err := os.ReadFile(dao.fileNameFromProfileName(name))
+	file, err := os.ReadFile("profiles.json")
 	if err != nil {
 		return profile.ProfileDto{}, err
 	}
@@ -42,7 +66,7 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 		Mods: dto.ModSlugs,
 	}
 
-	file, err := os.Create(dao.fileNameFromProfileName(dto.Name))
+	file, err := os.Create("profiles.json")
 	if err != nil {
 		return err
 	}
@@ -58,10 +82,4 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 	}
 
 	return nil
-}
-
-func (dao ProfileDao) fileNameFromProfileName(name string) string {
-	name = strings.ToLower(name)
-	name = strings.ReplaceAll(name, " ", "_")
-	return name
 }
