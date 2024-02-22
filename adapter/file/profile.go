@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"schoperation/lethalloader/domain/profile"
+	"strings"
 )
 
 type ProfileDao struct{}
@@ -32,32 +33,11 @@ func (dao ProfileDao) ReadAll() ([]profile.ProfileDto, error) {
 	dtos := make([]profile.ProfileDto, len(models))
 	i := 0
 	for _, model := range models {
-		dtos[i] = profile.ProfileDto{
-			Name:     model.Name,
-			ModSlugs: model.Mods,
-		}
+		dtos[i] = model.dto()
 		i++
 	}
 
 	return dtos, nil
-}
-
-func (dao ProfileDao) ReadByName(name string) (profile.ProfileDto, error) {
-	file, err := os.ReadFile("profiles.json")
-	if err != nil {
-		return profile.ProfileDto{}, err
-	}
-
-	var model profileModel
-	err = json.Unmarshal(file, &model)
-	if err != nil {
-		return profile.ProfileDto{}, err
-	}
-
-	return profile.ProfileDto{
-		Name:     model.Name,
-		ModSlugs: model.Mods,
-	}, nil
 }
 
 func (dao ProfileDao) Write(dto profile.ProfileDto) error {
@@ -70,8 +50,22 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
-	bytes, err := json.MarshalIndent(model, "", "    ")
+	bytes, err := json.Marshal(&file)
+	if err != nil {
+		return err
+	}
+
+	models := make(map[string]profileModel)
+	err = json.Unmarshal(bytes, &models)
+	if err != nil {
+		return err
+	}
+
+	models[model.key()] = model
+
+	bytes, err = json.MarshalIndent(model, "", "    ")
 	if err != nil {
 		return err
 	}
@@ -82,4 +76,54 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 	}
 
 	return nil
+}
+
+func (dao ProfileDao) Delete(dto profile.ProfileDto) error {
+	modelToDelete := profileModel{
+		Name: dto.Name,
+		Mods: dto.ModSlugs,
+	}
+
+	file, err := os.Create("profiles.json")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	bytes, err := json.Marshal(&file)
+	if err != nil {
+		return err
+	}
+
+	models := make(map[string]profileModel)
+	err = json.Unmarshal(bytes, &models)
+	if err != nil {
+		return err
+	}
+
+	delete(models, modelToDelete.key())
+
+	bytes, err = json.MarshalIndent(models, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (model profileModel) dto() profile.ProfileDto {
+	return profile.ProfileDto{
+		Name:     model.Name,
+		ModSlugs: model.Mods,
+	}
+}
+
+func (model profileModel) key() string {
+	lowered := strings.ToLower(model.Name)
+	return strings.ReplaceAll(lowered, " ", "_")
 }

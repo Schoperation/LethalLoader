@@ -32,6 +32,10 @@ func (config *MainConfig) Dto() MainConfigDto {
 	}
 }
 
-func (config *MainConfig) UpdateGameFilePath(newPath string) error {
-	return nil
+func (config *MainConfig) UpdateGameFilePath(newPath string) {
+	config.gameFilePath = newPath
+}
+
+func (config *MainConfig) UpdateSelectedProfile(profileName string) {
+	config.selectedProfile = profileName
 }

@@ -29,7 +29,7 @@ func NewProfileTranslator(
 	}
 }
 
-func (translator ProfileTranslator) GetAll(name string) ([]profile.Profile, error) {
+func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 	profileDtos, err := translator.profileDao.ReadAll()
 	if err != nil {
 		return nil, err

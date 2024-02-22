@@ -4,10 +4,8 @@ type SteamDao struct {
 	path string
 }
 
-func NewSteamDao() SteamDao {
-	return SteamDao{}
-}
-
-func (dao *SteamDao) SetPath(path string) {
-	dao.path = path
+func NewSteamDao(path string) SteamDao {
+	return SteamDao{
+		path: path,
+	}
 }
