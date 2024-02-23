@@ -3,6 +3,7 @@ package profile
 import (
 	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
+	"slices"
 )
 
 type profileDao interface {
@@ -44,6 +45,18 @@ func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 
 		profiles[i] = profile.ReformProfile(dto)
 	}
+
+	slices.SortStableFunc(profiles, func(a, b profile.Profile) int {
+		if a.Name() < b.Name() {
+			return -1
+		}
+
+		if a.Name() > b.Name() {
+			return 1
+		}
+
+		return 0
+	})
 
 	return profiles, nil
 }

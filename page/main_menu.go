@@ -3,6 +3,7 @@ package page
 import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
+	"schoperation/lethalloader/domain/option"
 	"schoperation/lethalloader/domain/profile"
 )
 
@@ -30,17 +31,17 @@ func NewMainMenuPage(
 	}
 }
 
-func (page MainMenuPage) Show() error {
+func (page MainMenuPage) Show() (option.OptionsResults, error) {
 	clear()
 
 	mainConfig, err := page.mainConfigUpdater.Read()
 	if err != nil {
-		return err
+		return option.OptionsResults{}, err
 	}
 
 	profiles, err := page.profileManager.GetAll()
 	if err != nil {
-		return err
+		return option.OptionsResults{}, err
 	}
 
 	fmt.Print("LethalLoader v0.0.1 ALPHA (expect bugs)\n")
@@ -67,5 +68,15 @@ func (page MainMenuPage) Show() error {
 	fmt.Print("Q ) Quit\n")
 	fmt.Print("\n")
 
-	return nil
+	options := option.NewOptions(option.OptionsArgs{
+		Options: map[string]option.CmdName{
+			"Sn": option.TaskSwitchProfile,
+			"C":  option.TaskCreateProfile,
+			"En": option.PageProfileViewer,
+			"Dn": option.TaskDeleteProfile,
+			"Q":  option.TaskQuit,
+		},
+	})
+
+	return options.TakeInput(), nil
 }

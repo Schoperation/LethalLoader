@@ -28,7 +28,11 @@ func main() {
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 
-	err = mainMenuPage.Show()
+	pageViewer := NewPageViewer(
+		mainMenuPage,
+	)
+
+	err = pageViewer.Run()
 	if err != nil {
 		fmt.Printf("Error occurred: %v\n", err)
 		return
