@@ -4,66 +4,124 @@ import "testing"
 
 func TestParse(t *testing.T) {
 	const (
-		TaskA CmdName = "a_task"
-		TaskB CmdName = "b_task"
-		TaskC CmdName = "c_task"
+		TaskA TaskName = "a"
+		TaskB TaskName = "b"
+		TaskC TaskName = "c"
+		TaskD TaskName = "d"
 	)
 
-	options := NewOptions(OptionsArgs{
-		Options: map[string]CmdName{
+	const (
+		PageA PageName = "a"
+		PageB PageName = "b"
+		PageC PageName = "c"
+		PageD PageName = "d"
+		PageE PageName = "e"
+	)
+
+	options := NewOptions(NewOptionsArgs{
+		Tasks: map[string]TaskName{
 			"An": TaskA,
 			"B":  TaskB,
 			"Cn": TaskC,
+			"D":  TaskD,
+		},
+		Pages: map[string]PageName{
+			"Cn": PageC,
+			"D":  PageD,
+			"E":  PageE,
 		},
 	})
 
 	testCases := []struct {
 		name         string
 		input        string
-		expectedTask CmdName
+		expectedTask TaskName
+		expectedPage PageName
 		expectedNum  int
 	}{
 		{
 			name:         "with_valid_numless_task_passes",
 			input:        "b",
 			expectedTask: TaskB,
+			expectedPage: "",
 			expectedNum:  0,
 		},
 		{
 			name:         "with_valid_numful_task_passes",
 			input:        "a1",
 			expectedTask: TaskA,
+			expectedPage: "",
 			expectedNum:  1,
 		},
 		{
 			name:         "with_multiple_digits_passes",
 			input:        "a77",
 			expectedTask: TaskA,
+			expectedPage: "",
 			expectedNum:  77,
 		},
 		{
-			name:         "with_invalid_task_fails",
-			input:        "d",
+			name:         "with_invalid_option_fails",
+			input:        "z",
 			expectedTask: "",
+			expectedPage: "",
 			expectedNum:  0,
 		},
 		{
 			name:         "with_invalid_num_fails",
 			input:        "arwehdq",
 			expectedTask: "",
+			expectedPage: "",
 			expectedNum:  0,
 		},
 		{
 			name:         "with_no_num_fails",
 			input:        "a",
 			expectedTask: "",
+			expectedPage: "",
 			expectedNum:  0,
 		},
 		{
 			name:         "with_num_on_numless_task_passes",
 			input:        "b10",
 			expectedTask: TaskB,
+			expectedPage: "",
 			expectedNum:  0,
+		},
+		{
+			name:         "with_num_on_numless_page_passes",
+			input:        "e2",
+			expectedTask: "",
+			expectedPage: PageE,
+			expectedNum:  0,
+		},
+		{
+			name:         "with_valid_page_passes",
+			input:        "e",
+			expectedTask: "",
+			expectedPage: PageE,
+			expectedNum:  0,
+		},
+		{
+			name:         "with_valid_page_and_task_passes",
+			input:        "d",
+			expectedTask: TaskD,
+			expectedPage: PageD,
+			expectedNum:  0,
+		},
+		{
+			name:         "with_valid_page_and_task_and_num_passes",
+			input:        "c3",
+			expectedTask: TaskC,
+			expectedPage: PageC,
+			expectedNum:  3,
+		},
+		{
+			name:         "with_valid_page_and_task_and_multiple_digits_passes",
+			input:        "c33",
+			expectedTask: TaskC,
+			expectedPage: PageC,
+			expectedNum:  33,
 		},
 	}
 
@@ -72,10 +130,14 @@ func TestParse(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			task, num := options.parse(tc.input)
+			task, page, num := options.parse(tc.input)
 
 			if task != tc.expectedTask {
 				t.Errorf("Expected task %s, got %s", tc.expectedTask, task)
+			}
+
+			if page != tc.expectedPage {
+				t.Errorf("Expected page %s, got %s", tc.expectedPage, page)
 			}
 
 			if num != tc.expectedNum {

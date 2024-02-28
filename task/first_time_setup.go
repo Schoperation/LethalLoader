@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
+	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 )
 
@@ -20,25 +21,32 @@ type vanillaProfileSaver interface {
 	Save(pf profile.Profile) error
 }
 
+type modListCreator interface {
+	SaveAllToList(mods []mod.Mod) error
+}
+
 type FirstTimeSetupTask struct {
 	mainConfigCreator   mainConfigCreator
 	steamChecker        steamChecker
 	vanillaProfileSaver vanillaProfileSaver
+	modListCreator      modListCreator
 }
 
 func NewFirstTimeSetupTask(
 	mainConfigCreator mainConfigCreator,
 	steamChecker steamChecker,
 	vanillaProfileSaver vanillaProfileSaver,
+	modListCreator modListCreator,
 ) FirstTimeSetupTask {
 	return FirstTimeSetupTask{
 		mainConfigCreator:   mainConfigCreator,
 		steamChecker:        steamChecker,
 		vanillaProfileSaver: vanillaProfileSaver,
+		modListCreator:      modListCreator,
 	}
 }
 
-func (task FirstTimeSetupTask) Do() error {
+func (task FirstTimeSetupTask) Do(args ...any) error {
 	mainConfig, err := task.mainConfigCreator.Read()
 	if err != nil {
 		return err
@@ -85,6 +93,11 @@ func (task FirstTimeSetupTask) Do() error {
 	}
 
 	err = task.vanillaProfileSaver.Save(vanillaProfile)
+	if err != nil {
+		return err
+	}
+
+	err = task.modListCreator.SaveAllToList(nil)
 	if err != nil {
 		return err
 	}

@@ -65,7 +65,7 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 
 	models[model.key()] = model
 
-	bytes, err = json.MarshalIndent(model, "", "    ")
+	bytes, err = json.MarshalIndent(models, "", "    ")
 	if err != nil {
 		return err
 	}

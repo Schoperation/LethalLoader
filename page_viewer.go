@@ -4,46 +4,63 @@ import (
 	"schoperation/lethalloader/domain/option"
 )
 
-type currentPage interface {
-	Show() (option.OptionsResults, error)
+type cliPage interface {
+	Show(args ...any) (option.OptionsResults, error)
 }
 
-type currentTask interface {
-	Do(args any) error
+type cliTask interface {
+	Do(args ...any) error
 }
 
 type PageViewer struct {
-	currentPage currentPage
-	pages       map[option.CmdName]currentPage
+	currentTask cliTask
+	currentPage cliPage
+	tasks       map[option.TaskName]cliTask
+	pages       map[option.PageName]cliPage
 }
 
 func NewPageViewer(
-	mainMenuPage currentPage,
+	mainMenuPage cliPage,
+	firstTimeSetupTask cliTask,
 ) PageViewer {
-	pages := map[option.CmdName]currentPage{
+	tasks := map[option.TaskName]cliTask{
+		option.TaskFirstTimeSetup: firstTimeSetupTask,
+	}
+
+	pages := map[option.PageName]cliPage{
 		option.PageMainMenu: mainMenuPage,
 	}
 
 	return PageViewer{
 		currentPage: mainMenuPage,
+		currentTask: firstTimeSetupTask,
 		pages:       pages,
+		tasks:       tasks,
 	}
 }
 
 func (viewer PageViewer) Run() error {
 	for {
+		err := viewer.currentTask.Do()
+		if err != nil {
+			return err
+		}
+
 		results, err := viewer.currentPage.Show()
 		if err != nil {
 			return err
 		}
 
-		if results.CmdName.IsQuit() {
+		if results.Task == "quit" {
 			return nil
 		}
 
-		if results.CmdName.IsPage() {
-			viewer.currentPage = viewer.pages[results.CmdName]
-			continue
+		if results.Task != "" {
+			viewer.currentTask = viewer.tasks[results.Task]
+		}
+
+		if results.Page != "" {
+			viewer.currentPage = viewer.pages[results.Page]
 		}
 	}
 }

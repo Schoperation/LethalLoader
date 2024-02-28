@@ -131,6 +131,16 @@ func (dao ModListDao) SaveAll(dtos []mod.ModDto) error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
+
+	if len(modModels) == 0 {
+		_, err = file.WriteString("{}")
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
 
 	bytes, err := json.MarshalIndent(modModels, "", "    ")
 	if err != nil {

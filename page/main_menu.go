@@ -31,7 +31,7 @@ func NewMainMenuPage(
 	}
 }
 
-func (page MainMenuPage) Show() (option.OptionsResults, error) {
+func (page MainMenuPage) Show(args ...any) (option.OptionsResults, error) {
 	clear()
 
 	mainConfig, err := page.mainConfigUpdater.Read()
@@ -62,17 +62,20 @@ func (page MainMenuPage) Show() (option.OptionsResults, error) {
 	fmt.Print("What to Do?\n")
 	fmt.Print("-----------\n")
 	fmt.Print("Sn) Switch to nth Profile\n")
-	fmt.Print("C ) Create New Profile\n")
+	fmt.Print("N ) New Profile\n")
 	fmt.Print("En) Edit nth Profile\n")
 	fmt.Print("Dn) Delete nth Profile\n")
 	fmt.Print("Q ) Quit\n")
 	fmt.Print("\n")
 
-	options := option.NewOptions(option.OptionsArgs{
-		Options: map[string]option.CmdName{
-			"Sn": option.TaskSwitchProfile,
-			"C":  option.TaskCreateProfile,
+	options := option.NewOptions(option.NewOptionsArgs{
+		Pages: map[string]option.PageName{
+			"N":  option.PageProfileViewer,
 			"En": option.PageProfileViewer,
+		},
+		Tasks: map[string]option.TaskName{
+			"Sn": option.TaskSwitchProfile,
+			"N":  option.TaskNewProfile,
 			"Dn": option.TaskDeleteProfile,
 			"Q":  option.TaskQuit,
 		},
