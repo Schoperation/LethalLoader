@@ -51,7 +51,7 @@ func (viewer PageViewer) Run() error {
 			return err
 		}
 
-		if results.Task == "quit" {
+		if results.Task == option.TaskQuit {
 			return nil
 		}
 
