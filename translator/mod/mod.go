@@ -9,6 +9,7 @@ type modDownloader interface {
 }
 
 type modListDao interface {
+	GetBySlug(slug string) (mod.ModDto, error)
 	GetAll() ([]mod.ModDto, error)
 	SaveAll(dtos []mod.ModDto) error
 }
@@ -34,7 +35,19 @@ func (translator ModTranslator) GetBepinEx() {
 
 }
 
-func (translator ModTranslator) Download() {
+func (translator ModTranslator) GetBySlug(name, author, version string) (mod.Mod, error) {
+	slug := author + "-" + name + "-" + version
+
+	cachedMod, err := translator.modListDao.GetBySlug(slug)
+	if err != nil && err.Error() != "mod not found" {
+		return mod.Mod{}, err
+	}
+
+	if err == nil {
+		return mod.ReformMod(cachedMod), nil
+	}
+
+	modZip
 
 }
 

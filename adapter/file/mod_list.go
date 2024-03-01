@@ -2,6 +2,7 @@ package file
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"schoperation/lethalloader/domain/mod"
 	"slices"
@@ -23,10 +24,55 @@ type modModel struct {
 	Files        []fileModel `json:"files"`
 }
 
+func (model modModel) Dto() mod.ModDto {
+	fileDtos := make([]mod.FileDto, len(model.Files))
+	for i, fileModel := range model.Files {
+		fileDtos[i] = fileModel.Dto()
+	}
+
+	return mod.ModDto{
+		Name:         model.Name,
+		Version:      model.Version,
+		Author:       model.Author,
+		Description:  model.Description,
+		Dependencies: model.Dependencies,
+		Files:        fileDtos,
+	}
+}
+
 type fileModel struct {
 	Name      string `json:"name"`
 	Path      string `json:"path"`
 	Sha256Sum string `json:"sha256sum"`
+}
+
+func (model fileModel) Dto() mod.FileDto {
+	return mod.FileDto{
+		Name:      model.Name,
+		Path:      model.Path,
+		Sha256Sum: model.Sha256Sum,
+	}
+}
+
+func (dao ModListDao) GetBySlug(slug string) (mod.ModDto, error) {
+	file, err := os.ReadFile("mods.json")
+	if err != nil {
+		return mod.ModDto{}, err
+	}
+
+	models := make(map[string]modModel)
+	err = json.Unmarshal(file, &models)
+	if err != nil {
+		return mod.ModDto{}, err
+	}
+
+	for slugKey, model := range models {
+		if slugKey == slug {
+			return model.Dto(), nil
+		}
+	}
+
+	return mod.ModDto{}, fmt.Errorf("mod not found")
 }
 
 func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
@@ -41,25 +87,11 @@ func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
 		return nil, err
 	}
 
-	dtos := []mod.ModDto{}
+	dtos := make([]mod.ModDto, len(models))
+	i := 0
 	for _, model := range models {
-		fileDtos := make([]mod.FileDto, len(model.Files))
-		for i, fileModel := range model.Files {
-			fileDtos[i] = mod.FileDto{
-				Name:      fileModel.Name,
-				Path:      fileModel.Path,
-				Sha256Sum: fileModel.Sha256Sum,
-			}
-		}
-
-		dtos = append(dtos, mod.ModDto{
-			Name:         model.Name,
-			Version:      model.Version,
-			Author:       model.Author,
-			Description:  model.Description,
-			Dependencies: model.Dependencies,
-			Files:        fileDtos,
-		})
+		dtos[i] = model.Dto()
+		i++
 	}
 
 	return dtos, nil
@@ -77,29 +109,15 @@ func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
 		return nil, err
 	}
 
-	dtos := []mod.ModDto{}
+	dtos := make([]mod.ModDto, len(models))
+	i := 0
 	for slug, model := range models {
 		if !slices.Contains(slugs, slug) {
 			continue
 		}
 
-		fileDtos := make([]mod.FileDto, len(model.Files))
-		for i, fileModel := range model.Files {
-			fileDtos[i] = mod.FileDto{
-				Name:      fileModel.Name,
-				Path:      fileModel.Path,
-				Sha256Sum: fileModel.Sha256Sum,
-			}
-		}
-
-		dtos = append(dtos, mod.ModDto{
-			Name:         model.Name,
-			Version:      model.Version,
-			Author:       model.Author,
-			Description:  model.Description,
-			Dependencies: model.Dependencies,
-			Files:        fileDtos,
-		})
+		dtos[i] = model.Dto()
+		i++
 	}
 
 	return dtos, nil
