@@ -3,13 +3,12 @@ package task
 import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
-	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 )
 
 type mainConfigCreator interface {
-	Read() (config.MainConfig, error)
-	Write(mainConfig config.MainConfig) error
+	Get() (config.MainConfig, error)
+	Save(mainConfig config.MainConfig) error
 }
 
 type steamChecker interface {
@@ -21,46 +20,39 @@ type vanillaProfileSaver interface {
 	Save(pf profile.Profile) error
 }
 
-type modListCreator interface {
-	SaveAllToList(mods []mod.Mod) error
-}
-
 type FirstTimeSetupTask struct {
 	mainConfigCreator   mainConfigCreator
 	steamChecker        steamChecker
 	vanillaProfileSaver vanillaProfileSaver
-	modListCreator      modListCreator
 }
 
 func NewFirstTimeSetupTask(
 	mainConfigCreator mainConfigCreator,
 	steamChecker steamChecker,
 	vanillaProfileSaver vanillaProfileSaver,
-	modListCreator modListCreator,
 ) FirstTimeSetupTask {
 	return FirstTimeSetupTask{
 		mainConfigCreator:   mainConfigCreator,
 		steamChecker:        steamChecker,
 		vanillaProfileSaver: vanillaProfileSaver,
-		modListCreator:      modListCreator,
 	}
 }
 
-func (task FirstTimeSetupTask) Do(args ...any) error {
-	mainConfig, err := task.mainConfigCreator.Read()
+func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
+	mainConfig, err := task.mainConfigCreator.Get()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if mainConfig.GameFilePath() != "" {
-		return nil
+		return nil, nil
 	}
 
 	fmt.Printf("First time? Trying to find your Lethal Company game files...\n")
 
 	gameFilePath, err := task.steamChecker.CheckDefault()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if gameFilePath == "" {
@@ -72,7 +64,7 @@ func (task FirstTimeSetupTask) Do(args ...any) error {
 
 			exists, err := task.steamChecker.Check(gameFilePath)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			if exists {
@@ -89,25 +81,20 @@ func (task FirstTimeSetupTask) Do(args ...any) error {
 		Name: "Vanilla",
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = task.vanillaProfileSaver.Save(vanillaProfile)
 	if err != nil {
-		return err
-	}
-
-	err = task.modListCreator.SaveAllToList(nil)
-	if err != nil {
-		return err
+		return nil, err
 	}
 
 	mainConfig.UpdateSelectedProfile(vanillaProfile.Name())
 
-	err = task.mainConfigCreator.Write(mainConfig)
+	err = task.mainConfigCreator.Save(mainConfig)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return nil, nil
 }

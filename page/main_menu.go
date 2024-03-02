@@ -8,8 +8,8 @@ import (
 )
 
 type mainConfigUpdater interface {
-	Read() (config.MainConfig, error)
-	Write(mainConfig config.MainConfig) error
+	Get() (config.MainConfig, error)
+	Save(mainConfig config.MainConfig) error
 }
 
 type profileManager interface {
@@ -34,7 +34,7 @@ func NewMainMenuPage(
 func (page MainMenuPage) Show(args ...any) (option.OptionsResults, error) {
 	clear()
 
-	mainConfig, err := page.mainConfigUpdater.Read()
+	mainConfig, err := page.mainConfigUpdater.Get()
 	if err != nil {
 		return option.OptionsResults{}, err
 	}

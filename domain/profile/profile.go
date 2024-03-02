@@ -44,7 +44,7 @@ func (pf *Profile) Name() string {
 	return pf.name
 }
 
-func (pf *Profile) Mods(name string) []mod.Mod {
+func (pf *Profile) Mods() []mod.Mod {
 	mods := make([]mod.Mod, len(pf.mods))
 	i := 0
 	for _, pfMod := range pf.mods {
@@ -59,9 +59,9 @@ func (pf *Profile) Dto() ProfileDto {
 	modDtos := make([]mod.ModDto, len(pf.mods))
 	slugs := make([]string, len(pf.mods))
 	i := 0
-	for slug, mod := range pf.mods {
+	for _, mod := range pf.mods {
 		modDtos[i] = mod.Dto()
-		slugs[i] = slug
+		slugs[i] = mod.Author() + "-" + mod.Name() + "-" + mod.Version()
 	}
 
 	return ProfileDto{

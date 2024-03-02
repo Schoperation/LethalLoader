@@ -7,8 +7,8 @@ import (
 )
 
 type profileDao interface {
-	ReadAll() ([]profile.ProfileDto, error)
-	Write(dto profile.ProfileDto) error
+	GetAll() ([]profile.ProfileDto, error)
+	Save(dto profile.ProfileDto) error
 }
 
 type modListDao interface {
@@ -31,7 +31,7 @@ func NewProfileTranslator(
 }
 
 func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
-	profileDtos, err := translator.profileDao.ReadAll()
+	profileDtos, err := translator.profileDao.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 		profiles[i] = profile.ReformProfile(dto)
 	}
 
-	slices.SortStableFunc(profiles, func(a, b profile.Profile) int {
+	slices.SortFunc(profiles, func(a, b profile.Profile) int {
 		if a.Name() < b.Name() {
 			return -1
 		}
@@ -62,7 +62,7 @@ func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 }
 
 func (translator ProfileTranslator) Save(pf profile.Profile) error {
-	err := translator.profileDao.Write(pf.Dto())
+	err := translator.profileDao.Save(pf.Dto())
 	if err != nil {
 		return err
 	}

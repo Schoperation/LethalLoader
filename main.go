@@ -16,20 +16,27 @@ func main() {
 	mainConfigDao := file.NewMainConfigDao()
 	profileDao := file.NewProfileDao()
 	modListDao := file.NewModListDao()
+	unzipper := file.NewFileUnzipper()
 
 	modDownloader := rest.NewModDownloader()
+	thunderstoreClient := rest.NewThunderstoreClient()
 
 	mainConfigTranslator := translator_config.NewMainConfigTranslator(mainConfigDao)
 	profileTranslator := translator_profile.NewProfileTranslator(profileDao, modListDao)
-	modTranslator := translator_mod.NewModTranslator(modDownloader, modListDao)
+	modTranslator := translator_mod.NewModTranslator(modDownloader, unzipper, modListDao)
+	listingTranslator := translator_mod.NewListingTranslator(thunderstoreClient)
 
-	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, steamChecker, profileTranslator, modTranslator)
+	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, steamChecker, profileTranslator)
+	newProfileTask := task.NewNewProfileTask(profileTranslator, listingTranslator, modTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
+	profileViewerPage := page.NewProfileViewerPage()
 
 	pageViewer := NewPageViewer(
 		mainMenuPage,
+		profileViewerPage,
 		firstTimeSetupTask,
+		newProfileTask,
 	)
 
 	err := pageViewer.Run()

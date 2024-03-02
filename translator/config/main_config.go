@@ -3,8 +3,8 @@ package config
 import "schoperation/lethalloader/domain/config"
 
 type mainConfigDao interface {
-	Read() (config.MainConfigDto, error)
-	Write(dto config.MainConfigDto) error
+	Get() (config.MainConfigDto, error)
+	Save(dto config.MainConfigDto) error
 }
 
 type MainConfigTranslator struct {
@@ -17,8 +17,8 @@ func NewMainConfigTranslator(mainConfigDao mainConfigDao) MainConfigTranslator {
 	}
 }
 
-func (translator MainConfigTranslator) Read() (config.MainConfig, error) {
-	mainConfig, err := translator.mainConfigDao.Read()
+func (translator MainConfigTranslator) Get() (config.MainConfig, error) {
+	mainConfig, err := translator.mainConfigDao.Get()
 	if err != nil {
 		return config.MainConfig{}, err
 	}
@@ -26,8 +26,8 @@ func (translator MainConfigTranslator) Read() (config.MainConfig, error) {
 	return config.ReformMainConfig(mainConfig), nil
 }
 
-func (translator MainConfigTranslator) Write(mainConfig config.MainConfig) error {
-	err := translator.mainConfigDao.Write(mainConfig.Dto())
+func (translator MainConfigTranslator) Save(mainConfig config.MainConfig) error {
+	err := translator.mainConfigDao.Save(mainConfig.Dto())
 	if err != nil {
 		return err
 	}

@@ -8,37 +8,36 @@ type modDownloader interface {
 	Download(url string, fileName string) (mod.FileDto, error)
 }
 
+type modUnzipper interface {
+	Unzip(zippedDto mod.FileDto) ([]mod.FileDto, error)
+}
+
 type modListDao interface {
-	GetBySlug(slug string) (mod.ModDto, error)
+	GetByNameAuthorVersion(name, author, version string) (mod.ModDto, error)
 	GetAll() ([]mod.ModDto, error)
-	SaveAll(dtos []mod.ModDto) error
+	Save(dto mod.ModDto) error
 }
 
 type ModTranslator struct {
 	modDownloader modDownloader
+	modUnzipper   modUnzipper
 	modListDao    modListDao
 }
 
 func NewModTranslator(
 	modDownloader modDownloader,
+	modUnzipper modUnzipper,
 	modListDao modListDao,
 ) ModTranslator {
 	return ModTranslator{
 		modDownloader: modDownloader,
+		modUnzipper:   modUnzipper,
 		modListDao:    modListDao,
 	}
 }
 
-const bepinex = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x64_5.4.22.0.zip"
-
-func (translator ModTranslator) GetBepinEx() {
-
-}
-
-func (translator ModTranslator) GetBySlug(name, author, version string) (mod.Mod, error) {
-	slug := author + "-" + name + "-" + version
-
-	cachedMod, err := translator.modListDao.GetBySlug(slug)
+func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, error) {
+	cachedMod, err := translator.modListDao.GetByNameAuthorVersion(listing.Name(), listing.Author(), listing.Version())
 	if err != nil && err.Error() != "mod not found" {
 		return mod.Mod{}, err
 	}
@@ -47,8 +46,37 @@ func (translator ModTranslator) GetBySlug(name, author, version string) (mod.Mod
 		return mod.ReformMod(cachedMod), nil
 	}
 
-	modZip
+	fileName := listing.Author() + "-" + listing.Name() + "-" + listing.Version()
+	zipFile, err := translator.modDownloader.Download(listing.DownloadUrl(), fileName)
+	if err != nil {
+		return mod.Mod{}, err
+	}
 
+	fileDtos, err := translator.modUnzipper.Unzip(zipFile)
+	if err != nil {
+		return mod.Mod{}, err
+	}
+
+	newModDto := mod.ModDto{
+		Name:         listing.Name(),
+		Version:      listing.Version(),
+		Author:       listing.Author(),
+		Description:  listing.Description(),
+		Files:        fileDtos,
+		Dependencies: listing.Dependencies(),
+	}
+
+	newMod, err := mod.NewMod(newModDto)
+	if err != nil {
+		return mod.Mod{}, err
+	}
+
+	err = translator.modListDao.Save(newModDto)
+	if err != nil {
+		return mod.Mod{}, err
+	}
+
+	return newMod, nil
 }
 
 func (translator ModTranslator) GetAllFromList() ([]mod.Mod, error) {
@@ -65,13 +93,8 @@ func (translator ModTranslator) GetAllFromList() ([]mod.Mod, error) {
 	return mods, nil
 }
 
-func (translator ModTranslator) SaveAllToList(mods []mod.Mod) error {
-	dtos := make([]mod.ModDto, len(mods))
-	for i, mod := range mods {
-		dtos[i] = mod.Dto()
-	}
-
-	err := translator.modListDao.SaveAll(dtos)
+func (translator ModTranslator) SaveToList(mod mod.Mod) error {
+	err := translator.modListDao.Save(mod.Dto())
 	if err != nil {
 		return err
 	}

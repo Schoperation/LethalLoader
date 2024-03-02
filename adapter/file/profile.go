@@ -2,6 +2,7 @@ package file
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 	"schoperation/lethalloader/domain/profile"
 	"strings"
@@ -18,7 +19,19 @@ type profileModel struct {
 	Mods []string `json:"mods"`
 }
 
-func (dao ProfileDao) ReadAll() ([]profile.ProfileDto, error) {
+func (model profileModel) dto() profile.ProfileDto {
+	return profile.ProfileDto{
+		Name:     model.Name,
+		ModSlugs: model.Mods,
+	}
+}
+
+func (model profileModel) key() string {
+	lowered := strings.ToLower(model.Name)
+	return strings.ReplaceAll(lowered, " ", "_")
+}
+
+func (dao ProfileDao) GetAll() ([]profile.ProfileDto, error) {
 	file, err := os.ReadFile("profiles.json")
 	if err != nil {
 		return nil, err
@@ -40,7 +53,7 @@ func (dao ProfileDao) ReadAll() ([]profile.ProfileDto, error) {
 	return dtos, nil
 }
 
-func (dao ProfileDao) Write(dto profile.ProfileDto) error {
+func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 	model := profileModel{
 		Name: dto.Name,
 		Mods: dto.ModSlugs,
@@ -52,7 +65,7 @@ func (dao ProfileDao) Write(dto profile.ProfileDto) error {
 	}
 	defer file.Close()
 
-	bytes, err := json.Marshal(&file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		return err
 	}
@@ -90,7 +103,7 @@ func (dao ProfileDao) Delete(dto profile.ProfileDto) error {
 	}
 	defer file.Close()
 
-	bytes, err := json.Marshal(&file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		return err
 	}
@@ -114,16 +127,4 @@ func (dao ProfileDao) Delete(dto profile.ProfileDto) error {
 	}
 
 	return nil
-}
-
-func (model profileModel) dto() profile.ProfileDto {
-	return profile.ProfileDto{
-		Name:     model.Name,
-		ModSlugs: model.Mods,
-	}
-}
-
-func (model profileModel) key() string {
-	lowered := strings.ToLower(model.Name)
-	return strings.ReplaceAll(lowered, " ", "_")
 }

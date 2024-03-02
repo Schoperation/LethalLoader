@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"schoperation/lethalloader/domain/option"
 )
 
@@ -9,31 +10,35 @@ type cliPage interface {
 }
 
 type cliTask interface {
-	Do(args ...any) error
+	Do(args ...any) (any, error)
 }
 
 type PageViewer struct {
-	currentTask cliTask
-	currentPage cliPage
+	currentTask *cliTask
+	currentPage *cliPage
 	tasks       map[option.TaskName]cliTask
 	pages       map[option.PageName]cliPage
 }
 
 func NewPageViewer(
 	mainMenuPage cliPage,
+	profileViewerPage cliPage,
 	firstTimeSetupTask cliTask,
+	newProfileTask cliTask,
 ) PageViewer {
 	tasks := map[option.TaskName]cliTask{
 		option.TaskFirstTimeSetup: firstTimeSetupTask,
+		option.TaskNewProfile:     newProfileTask,
 	}
 
 	pages := map[option.PageName]cliPage{
-		option.PageMainMenu: mainMenuPage,
+		option.PageMainMenu:      mainMenuPage,
+		option.PageProfileViewer: profileViewerPage,
 	}
 
 	return PageViewer{
-		currentPage: mainMenuPage,
-		currentTask: firstTimeSetupTask,
+		currentPage: &mainMenuPage,
+		currentTask: &firstTimeSetupTask,
 		pages:       pages,
 		tasks:       tasks,
 	}
@@ -41,12 +46,12 @@ func NewPageViewer(
 
 func (viewer PageViewer) Run() error {
 	for {
-		err := viewer.currentTask.Do()
+		taskResult, err := (*viewer.currentTask).Do()
 		if err != nil {
 			return err
 		}
 
-		results, err := viewer.currentPage.Show()
+		results, err := (*viewer.currentPage).Show(taskResult)
 		if err != nil {
 			return err
 		}
@@ -55,12 +60,24 @@ func (viewer PageViewer) Run() error {
 			return nil
 		}
 
+		viewer.currentTask = nil
 		if results.Task != "" {
-			viewer.currentTask = viewer.tasks[results.Task]
+			nextTask, exists := viewer.tasks[results.Task]
+			if !exists {
+				return fmt.Errorf("could not find task %s", results.Task)
+			}
+
+			viewer.currentTask = &nextTask
 		}
 
+		viewer.currentPage = nil
 		if results.Page != "" {
-			viewer.currentPage = viewer.pages[results.Page]
+			nextPage, exists := viewer.pages[results.Page]
+			if !exists {
+				return fmt.Errorf("could not find page %s", results.Page)
+			}
+
+			viewer.currentPage = &nextPage
 		}
 	}
 }

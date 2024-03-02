@@ -2,30 +2,46 @@ package task
 
 import (
 	"fmt"
+	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 	"strings"
 )
 
-type allProfilesGetter interface {
+type newProfileSaver interface {
 	GetAll() ([]profile.Profile, error)
+	Save(pf profile.Profile) error
+}
+
+type bepInExListingGetter interface {
+	GetByNameAndAuthor(name, author string) (mod.Listing, error)
+}
+
+type bepInExGetter interface {
+	GetByModListing(listing mod.Listing) (mod.Mod, error)
 }
 
 type NewProfileTask struct {
-	allProfilesGetter allProfilesGetter
+	newProfileSaver      newProfileSaver
+	bepInExListingGetter bepInExListingGetter
+	bepInExGetter        bepInExGetter
 }
 
 func NewNewProfileTask(
-	allProfilesGetter allProfilesGetter,
+	newProfileSaver newProfileSaver,
+	bepInExListingGetter bepInExListingGetter,
+	bepInExGetter bepInExGetter,
 ) NewProfileTask {
 	return NewProfileTask{
-		allProfilesGetter: allProfilesGetter,
+		newProfileSaver:      newProfileSaver,
+		bepInExListingGetter: bepInExListingGetter,
+		bepInExGetter:        bepInExGetter,
 	}
 }
 
-func (task NewProfileTask) Do(args ...any) error {
-	existingProfiles, err := task.allProfilesGetter.GetAll()
+func (task NewProfileTask) Do(args ...any) (any, error) {
+	existingProfiles, err := task.newProfileSaver.GetAll()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	existingProfileNames := make(map[string]bool, len(existingProfiles))
@@ -46,6 +62,7 @@ func (task NewProfileTask) Do(args ...any) error {
 			}
 
 			fmt.Printf("Profile name already exists.\n")
+			continue
 		}
 
 		fmt.Printf("Bruh that ain't a real name...\n")
@@ -55,8 +72,28 @@ func (task NewProfileTask) Do(args ...any) error {
 		Name: newProfileName,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	bepInExListing, err := task.bepInExListingGetter.GetByNameAndAuthor("BepInExPack", "BepInEx")
+	if err != nil {
+		return nil, err
+	}
+
+	bepInEx, err := task.bepInExGetter.GetByModListing(bepInExListing)
+	if err != nil {
+		return nil, err
+	}
+
+	err = newProfile.AddMod(bepInEx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = task.newProfileSaver.Save(newProfile)
+	if err != nil {
+		return nil, err
+	}
+
+	return newProfile, nil
 }

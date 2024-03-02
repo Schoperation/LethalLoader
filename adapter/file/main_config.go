@@ -20,7 +20,7 @@ type mainConfigModel struct {
 	SelectedProfile string `yaml:"selectedProfile"`
 }
 
-func (dao MainConfigDao) Read() (config.MainConfigDto, error) {
+func (dao MainConfigDao) Get() (config.MainConfigDto, error) {
 	file, err := os.ReadFile("config.yaml")
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -42,7 +42,7 @@ func (dao MainConfigDao) Read() (config.MainConfigDto, error) {
 	}, nil
 }
 
-func (dao MainConfigDao) Write(dto config.MainConfigDto) error {
+func (dao MainConfigDao) Save(dto config.MainConfigDto) error {
 	model := mainConfigModel{
 		GameFilePath:    dto.GameFilePath,
 		SelectedProfile: dto.SelectedProfile,
