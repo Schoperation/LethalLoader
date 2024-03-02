@@ -1,10 +1,7 @@
 package file
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"os"
 	"schoperation/lethalloader/domain/mod"
 	"slices"
 )
@@ -16,6 +13,8 @@ func NewModListDao() ModListDao {
 	return ModListDao{}
 }
 
+const modListFileName = "mods.json"
+
 type modModel struct {
 	Name         string      `json:"name"`
 	Version      string      `json:"version"`
@@ -25,10 +24,10 @@ type modModel struct {
 	Files        []fileModel `json:"files"`
 }
 
-func (model modModel) Dto() mod.ModDto {
+func (model modModel) dto() mod.ModDto {
 	fileDtos := make([]mod.FileDto, len(model.Files))
 	for i, fileModel := range model.Files {
-		fileDtos[i] = fileModel.Dto()
+		fileDtos[i] = fileModel.dto()
 	}
 
 	return mod.ModDto{
@@ -47,7 +46,7 @@ type fileModel struct {
 	Sha256Sum string `json:"sha256sum"`
 }
 
-func (model fileModel) Dto() mod.FileDto {
+func (model fileModel) dto() mod.FileDto {
 	return mod.FileDto{
 		Name:      model.Name,
 		Path:      model.Path,
@@ -59,33 +58,8 @@ func (dao ModListDao) slug(name, author, version string) string {
 	return author + "-" + name + "-" + version
 }
 
-func (dao ModListDao) getModModels() (map[string]modModel, error) {
-	file, err := os.Create("mods.json")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(bytes) == 0 {
-		return make(map[string]modModel), nil
-	}
-
-	models := make(map[string]modModel)
-	err = json.Unmarshal(bytes, &models)
-	if err != nil {
-		return nil, err
-	}
-
-	return models, nil
-}
-
 func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
-	models, err := dao.getModModels()
+	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +67,7 @@ func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
 	dtos := make([]mod.ModDto, len(models))
 	i := 0
 	for _, model := range models {
-		dtos[i] = model.Dto()
+		dtos[i] = model.dto()
 		i++
 	}
 
@@ -101,7 +75,7 @@ func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
 }
 
 func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
-	models, err := dao.getModModels()
+	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +87,7 @@ func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
 			continue
 		}
 
-		dtos[i] = model.Dto()
+		dtos[i] = model.dto()
 		i++
 	}
 
@@ -121,7 +95,7 @@ func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
 }
 
 func (dao ModListDao) GetByNameAuthorVersion(name, author, version string) (mod.ModDto, error) {
-	models, err := dao.getModModels()
+	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return mod.ModDto{}, err
 	}
@@ -129,7 +103,7 @@ func (dao ModListDao) GetByNameAuthorVersion(name, author, version string) (mod.
 	slug := dao.slug(name, author, version)
 	for slugKey, model := range models {
 		if slugKey == slug {
-			return model.Dto(), nil
+			return model.dto(), nil
 		}
 	}
 
@@ -155,7 +129,7 @@ func (dao ModListDao) Save(dto mod.ModDto) error {
 		Files:        fileModels,
 	}
 
-	models, err := dao.getModModels()
+	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return err
 	}
@@ -163,18 +137,7 @@ func (dao ModListDao) Save(dto mod.ModDto) error {
 	slug := dao.slug(dto.Name, dto.Author, dto.Version)
 	models[slug] = newModModel
 
-	bytes, err := json.MarshalIndent(models, "", "    ")
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create("mods.json")
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.Write(bytes)
+	err = write(modListFileName, models)
 	if err != nil {
 		return err
 	}

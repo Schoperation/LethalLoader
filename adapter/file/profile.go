@@ -1,9 +1,6 @@
 package file
 
 import (
-	"encoding/json"
-	"io"
-	"os"
 	"schoperation/lethalloader/domain/profile"
 	"strings"
 )
@@ -13,6 +10,8 @@ type ProfileDao struct{}
 func NewProfileDao() ProfileDao {
 	return ProfileDao{}
 }
+
+const profilesFileName = "profiles.json"
 
 type profileModel struct {
 	Name string   `json:"name"`
@@ -32,13 +31,7 @@ func (model profileModel) key() string {
 }
 
 func (dao ProfileDao) GetAll() ([]profile.ProfileDto, error) {
-	file, err := os.ReadFile("profiles.json")
-	if err != nil {
-		return nil, err
-	}
-
-	models := make(map[string]profileModel)
-	err = json.Unmarshal(file, &models)
+	models, err := read[profileModel](profilesFileName)
 	if err != nil {
 		return nil, err
 	}
@@ -59,31 +52,14 @@ func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 		Mods: dto.ModSlugs,
 	}
 
-	file, err := os.Create("profiles.json")
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
-
-	models := make(map[string]profileModel)
-	err = json.Unmarshal(bytes, &models)
+	models, err := read[profileModel](profilesFileName)
 	if err != nil {
 		return err
 	}
 
 	models[model.key()] = model
 
-	bytes, err = json.MarshalIndent(models, "", "    ")
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bytes)
+	err = write(profilesFileName, models)
 	if err != nil {
 		return err
 	}
@@ -97,31 +73,14 @@ func (dao ProfileDao) Delete(dto profile.ProfileDto) error {
 		Mods: dto.ModSlugs,
 	}
 
-	file, err := os.Create("profiles.json")
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
-
-	models := make(map[string]profileModel)
-	err = json.Unmarshal(bytes, &models)
+	models, err := read[profileModel](profilesFileName)
 	if err != nil {
 		return err
 	}
 
 	delete(models, modelToDelete.key())
 
-	bytes, err = json.MarshalIndent(models, "", "    ")
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bytes)
+	err = write(profilesFileName, models)
 	if err != nil {
 		return err
 	}

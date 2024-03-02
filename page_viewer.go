@@ -46,12 +46,12 @@ func NewPageViewer(
 
 func (viewer PageViewer) Run() error {
 	for {
-		taskResult, err := (*viewer.currentTask).Do()
+		taskResult, err := viewer.doTask()
 		if err != nil {
 			return err
 		}
 
-		results, err := (*viewer.currentPage).Show(taskResult)
+		results, err := viewer.showPage(taskResult)
 		if err != nil {
 			return err
 		}
@@ -80,4 +80,20 @@ func (viewer PageViewer) Run() error {
 			viewer.currentPage = &nextPage
 		}
 	}
+}
+
+func (viewer PageViewer) doTask() (any, error) {
+	if viewer.currentTask == nil {
+		return nil, nil
+	}
+
+	return (*viewer.currentTask).Do()
+}
+
+func (viewer PageViewer) showPage(args ...any) (option.OptionsResults, error) {
+	if viewer.currentPage == nil {
+		return option.OptionsResults{}, nil
+	}
+
+	return (*viewer.currentPage).Show(args...)
 }
