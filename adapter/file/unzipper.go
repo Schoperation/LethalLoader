@@ -24,11 +24,14 @@ func (fuz FileUnzipper) Unzip(zippedDto mod.FileDto) ([]mod.FileDto, error) {
 	}
 	defer reader.Close()
 
-	os.Mkdir(zippedDto.Name, 0755)
+	err = os.MkdirAll("modcache/"+zippedDto.Name, 0755)
+	if err != nil {
+		return nil, err
+	}
 
 	fileDtos := []mod.FileDto{}
 	for _, f := range reader.File {
-		fileDto, err := fuz.extractFile(f, zippedDto.Name)
+		fileDto, err := fuz.extractFile(f, "modcache/"+zippedDto.Name)
 		if err != nil {
 			return nil, err
 		}

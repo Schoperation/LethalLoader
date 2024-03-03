@@ -1,4 +1,4 @@
-package main
+package viewer
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 type cliPage interface {
-	Show(args ...any) (option.OptionsResults, error)
+	Show(args ...any) (option.Options, error)
 }
 
 type cliTask interface {
@@ -45,13 +45,16 @@ func NewPageViewer(
 }
 
 func (viewer PageViewer) Run() error {
+	var args any
+	var err error
+
 	for {
-		taskResult, err := viewer.doTask()
+		args, err = viewer.doTask()
 		if err != nil {
 			return err
 		}
 
-		results, err := viewer.showPage(taskResult)
+		options, err := viewer.showPage(args)
 		if err != nil {
 			return err
 		}
@@ -90,9 +93,9 @@ func (viewer PageViewer) doTask() (any, error) {
 	return (*viewer.currentTask).Do()
 }
 
-func (viewer PageViewer) showPage(args ...any) (option.OptionsResults, error) {
+func (viewer PageViewer) showPage(args ...any) (option.Options, error) {
 	if viewer.currentPage == nil {
-		return option.OptionsResults{}, nil
+		return option.Options{}, nil
 	}
 
 	return (*viewer.currentPage).Show(args...)

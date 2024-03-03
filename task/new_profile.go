@@ -46,7 +46,7 @@ func (task NewProfileTask) Do(args ...any) (any, error) {
 
 	existingProfileNames := make(map[string]bool, len(existingProfiles))
 	for _, pf := range existingProfiles {
-		existingProfileNames[pf.Name()] = true
+		existingProfileNames[strings.ToLower(pf.Name())] = true
 	}
 
 	fmt.Printf("\n")
@@ -57,7 +57,7 @@ func (task NewProfileTask) Do(args ...any) (any, error) {
 		fmt.Scanf("%s", &newProfileName)
 
 		if strings.TrimSpace(newProfileName) != "" {
-			if _, alreadyExists := existingProfileNames[newProfileName]; !alreadyExists {
+			if _, alreadyExists := existingProfileNames[strings.ToLower(newProfileName)]; !alreadyExists {
 				break
 			}
 

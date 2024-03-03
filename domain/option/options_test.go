@@ -18,7 +18,7 @@ func TestParse(t *testing.T) {
 		PageE PageName = "e"
 	)
 
-	options := NewOptions(NewOptionsArgs{
+	options := NewOptions(OptionsDto{
 		Tasks: map[string]TaskName{
 			"An": TaskA,
 			"B":  TaskB,
@@ -30,7 +30,7 @@ func TestParse(t *testing.T) {
 			"D":  PageD,
 			"E":  PageE,
 		},
-	})
+	}, []string{"arg1", "arg2", "arg3", "arg4", "arg5", "arg6", "arg7", "arg8", "arg9", "arg10", "arg11"})
 
 	testCases := []struct {
 		name         string
@@ -55,10 +55,10 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name:         "with_multiple_digits_passes",
-			input:        "a77",
+			input:        "a11",
 			expectedTask: TaskA,
 			expectedPage: "",
-			expectedNum:  77,
+			expectedNum:  11,
 		},
 		{
 			name:         "with_invalid_option_fails",
@@ -80,6 +80,27 @@ func TestParse(t *testing.T) {
 			expectedTask: "",
 			expectedPage: "",
 			expectedNum:  0,
+		},
+		{
+			name:         "with_out_of_bounds_num_fails",
+			input:        "a12",
+			expectedTask: "",
+			expectedPage: "",
+			expectedNum:  -1,
+		},
+		{
+			name:         "with_negative_out_of_bounds_num_fails",
+			input:        "a-12",
+			expectedTask: "",
+			expectedPage: "",
+			expectedNum:  -1,
+		},
+		{
+			name:         "with_zero_num_fails",
+			input:        "a0",
+			expectedTask: "",
+			expectedPage: "",
+			expectedNum:  -1,
 		},
 		{
 			name:         "with_num_on_numless_task_passes",
@@ -118,10 +139,10 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name:         "with_valid_page_and_task_and_multiple_digits_passes",
-			input:        "c33",
+			input:        "c11",
 			expectedTask: TaskC,
 			expectedPage: PageC,
-			expectedNum:  33,
+			expectedNum:  11,
 		},
 	}
 

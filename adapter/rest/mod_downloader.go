@@ -16,12 +16,12 @@ func NewModDownloader() ModDownloader {
 }
 
 func (dldr ModDownloader) Download(url string, fileName string) (mod.FileDto, error) {
-	err := os.Mkdir("modcache", 0755)
+	err := os.Mkdir("zips", 0755)
 	if err != nil {
 		return mod.FileDto{}, err
 	}
 
-	file, err := os.Create("modcache/" + fileName)
+	file, err := os.Create("zips/" + fileName)
 	if err != nil {
 		return mod.FileDto{}, err
 	}
@@ -44,7 +44,7 @@ func (dldr ModDownloader) Download(url string, fileName string) (mod.FileDto, er
 		return mod.FileDto{}, err
 	}
 
-	absFilePath, err := filepath.Abs("modcache/" + fileName)
+	absFilePath, err := filepath.Abs("zips/" + fileName)
 	if err != nil {
 		return mod.FileDto{}, err
 	}

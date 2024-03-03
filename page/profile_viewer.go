@@ -13,12 +13,12 @@ func NewProfileViewerPage() ProfileViewerPage {
 	return ProfileViewerPage{}
 }
 
-func (page ProfileViewerPage) Show(args ...any) (option.OptionsResults, error) {
+func (page ProfileViewerPage) Show(args ...any) (option.Options, error) {
 	clear()
 
 	profile, ok := args[0].(profile.Profile)
 	if !ok {
-		return option.OptionsResults{}, fmt.Errorf("could not cast profile")
+		return option.Options{}, fmt.Errorf("could not cast profile")
 	}
 
 	fmt.Printf("Profile %s\n", profile.Name())
@@ -37,12 +37,10 @@ func (page ProfileViewerPage) Show(args ...any) (option.OptionsResults, error) {
 	fmt.Print("Q) Quit to Main Menu\n")
 	fmt.Print("\n")
 
-	options := option.NewOptions(option.NewOptionsArgs{
+	return option.NewOptions(option.OptionsDto{
 		Pages: map[string]option.PageName{
 			"Q": option.PageMainMenu,
 		},
 		Tasks: map[string]option.TaskName{},
-	})
-
-	return options.TakeInput(), nil
+	}, []string{}), nil
 }

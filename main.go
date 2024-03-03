@@ -32,7 +32,7 @@ func main() {
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
 
-	pageViewer := NewPageViewer(
+	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
 		profileViewerPage,
 		firstTimeSetupTask,

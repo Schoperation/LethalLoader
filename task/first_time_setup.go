@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
 	"schoperation/lethalloader/domain/profile"
+	"strings"
 )
 
 type mainConfigCreator interface {
@@ -55,23 +56,38 @@ func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
 		return nil, err
 	}
 
+	gameFilePath = strings.TrimSpace(gameFilePath)
+
 	if gameFilePath == "" {
 		fmt.Printf("Couldn't find your game files. Would you be so polite to tell us where they are?\n")
-		fmt.Printf("Type the full path (C:\\Program Files (x86)\\whatever)\n")
+
+		gameFilePath, err = task.customGameFilePath()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		fmt.Printf("Found existing game files: %s\n", gameFilePath)
+		fmt.Printf("Are we good? (Y/n)\n")
+		fmt.Printf("\n")
 
 		for {
-			fmt.Scanf("%s", &gameFilePath)
+			var weGood string
+			fmt.Print(">")
+			fmt.Scanf("%s", &weGood)
 
-			exists, err := task.steamChecker.Check(gameFilePath)
-			if err != nil {
-				return nil, err
-			}
-
-			if exists {
+			if weGood == "" || weGood == "y" {
 				break
 			}
 
-			fmt.Printf("Bruh that don't exist\n")
+			if weGood == "n" {
+				gameFilePath, err = task.customGameFilePath()
+				if err != nil {
+					return nil, err
+				}
+				break
+			}
+
+			fmt.Printf("Bruh what you saying\n")
 		}
 	}
 
@@ -97,4 +113,28 @@ func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
 	}
 
 	return nil, nil
+}
+
+func (task FirstTimeSetupTask) customGameFilePath() (string, error) {
+	fmt.Printf("Type the full path (C:\\Program Files (x86)\\whatever)\n")
+
+	gameFilePath := ""
+	for {
+		var path string
+		fmt.Scanf("%s", &path)
+
+		exists, err := task.steamChecker.Check(path)
+		if err != nil {
+			return "", err
+		}
+
+		if exists {
+			gameFilePath = path
+			break
+		}
+
+		fmt.Printf("Bruh that don't exist\n")
+	}
+
+	return gameFilePath, nil
 }

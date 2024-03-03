@@ -6,15 +6,15 @@ import (
 	"unicode"
 )
 
+type OptionsDto struct {
+	Tasks map[string]TaskName
+	Pages map[string]PageName
+}
+
 type OptionsResults struct {
 	Task TaskName
 	Page PageName
-	Num  int
-}
-
-type NewOptionsArgs struct {
-	Tasks map[string]TaskName
-	Pages map[string]PageName
+	Args any
 }
 
 type Options struct {
@@ -22,17 +22,21 @@ type Options struct {
 	pages         map[rune]PageName
 	tasksWithNums map[rune]TaskName
 	pagesWithNums map[rune]PageName
+	possibleArgs  []any
 }
 
-func NewOptions(args NewOptionsArgs) Options {
+func NewOptions[E any](dto OptionsDto, args []E) Options {
+	castedArgs := toAnySlice(args)
+
 	options := Options{
 		tasks:         make(map[rune]TaskName),
 		pages:         make(map[rune]PageName),
 		tasksWithNums: make(map[rune]TaskName),
 		pagesWithNums: make(map[rune]PageName),
+		possibleArgs:  castedArgs,
 	}
 
-	for letter, task := range args.Tasks {
+	for letter, task := range dto.Tasks {
 		if len(letter) == 1 {
 			options.tasks[rune(letter[0])] = task
 			continue
@@ -41,7 +45,7 @@ func NewOptions(args NewOptionsArgs) Options {
 		options.tasksWithNums[rune(letter[0])] = task
 	}
 
-	for letter, page := range args.Pages {
+	for letter, page := range dto.Pages {
 		if len(letter) == 1 {
 			options.pages[rune(letter[0])] = page
 			continue
@@ -54,22 +58,32 @@ func NewOptions(args NewOptionsArgs) Options {
 }
 
 func (ops Options) TakeInput() OptionsResults {
-	var choice string
 	var taskName TaskName
 	var pageName PageName
 	var num int
 
 	for {
+		var choice string
 		fmt.Print(">")
 		fmt.Scanf("%s", &choice)
 
 		taskName, pageName, num = ops.parse(choice)
 		if taskName != "" || pageName != "" {
+			var args any
+			if num > 0 {
+				args = ops.possibleArgs[num-1]
+			}
+
 			return OptionsResults{
 				Task: taskName,
 				Page: pageName,
-				Num:  num,
+				Args: args,
 			}
+		}
+
+		if num == -1 {
+			fmt.Printf("Invalid number. Must be between 1 and %d", len(ops.possibleArgs))
+			continue
 		}
 
 		fmt.Printf("The hell are you saying? Use one of the available options.\n")
@@ -116,7 +130,20 @@ func (ops Options) parse(choice string) (TaskName, PageName, int) {
 		if err != nil {
 			return "", "", 0
 		}
+
+		if num > len(ops.possibleArgs) || num <= 0 {
+			return "", "", -1
+		}
 	}
 
 	return taskName, pageName, num
+}
+
+func toAnySlice[S ~[]E, E any](s S) []any {
+	anys := make([]any, len(s))
+	for i, e := range s {
+		anys[i] = e
+	}
+
+	return anys
 }

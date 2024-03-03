@@ -31,17 +31,17 @@ func NewMainMenuPage(
 	}
 }
 
-func (page MainMenuPage) Show(args ...any) (option.OptionsResults, error) {
+func (page MainMenuPage) Show(args ...any) (option.Options, error) {
 	clear()
 
 	mainConfig, err := page.mainConfigUpdater.Get()
 	if err != nil {
-		return option.OptionsResults{}, err
+		return option.Options{}, err
 	}
 
 	profiles, err := page.profileManager.GetAll()
 	if err != nil {
-		return option.OptionsResults{}, err
+		return option.Options{}, err
 	}
 
 	fmt.Print("LethalLoader v0.0.1 ALPHA (expect bugs)\n")
@@ -68,7 +68,7 @@ func (page MainMenuPage) Show(args ...any) (option.OptionsResults, error) {
 	fmt.Print("Q ) Quit\n")
 	fmt.Print("\n")
 
-	options := option.NewOptions(option.NewOptionsArgs{
+	return option.NewOptions(option.OptionsDto{
 		Pages: map[string]option.PageName{
 			"N":  option.PageProfileViewer,
 			"En": option.PageProfileViewer,
@@ -79,7 +79,5 @@ func (page MainMenuPage) Show(args ...any) (option.OptionsResults, error) {
 			"Dn": option.TaskDeleteProfile,
 			"Q":  option.TaskQuit,
 		},
-	})
-
-	return options.TakeInput(), nil
+	}, profiles), nil
 }
