@@ -48,6 +48,8 @@ func (viewer PageViewer) Run() error {
 	var args any
 	var err error
 
+	options := viewer.NewOption(viewer.OptionDto{}, []string{})
+
 	for {
 		args, err = viewer.doTask()
 		if err != nil {
