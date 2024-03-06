@@ -2,8 +2,8 @@ package page
 
 import (
 	"fmt"
-	"schoperation/lethalloader/domain/option"
 	"schoperation/lethalloader/domain/profile"
+	"schoperation/lethalloader/domain/viewer"
 )
 
 type ProfileViewerPage struct {
@@ -13,12 +13,12 @@ func NewProfileViewerPage() ProfileViewerPage {
 	return ProfileViewerPage{}
 }
 
-func (page ProfileViewerPage) Show(args ...any) (option.Options, error) {
+func (page ProfileViewerPage) Show(args ...any) (viewer.OptionsResult, error) {
 	clear()
 
 	profile, ok := args[0].(profile.Profile)
 	if !ok {
-		return option.Options{}, fmt.Errorf("could not cast profile")
+		return viewer.OptionsResult{}, fmt.Errorf("could not cast profile")
 	}
 
 	fmt.Printf("Profile %s\n", profile.Name())
@@ -37,10 +37,20 @@ func (page ProfileViewerPage) Show(args ...any) (option.Options, error) {
 	fmt.Print("Q) Quit to Main Menu\n")
 	fmt.Print("\n")
 
-	return option.NewOptions(option.OptionsDto{
-		Pages: map[string]option.PageName{
-			"Q": option.PageMainMenu,
+	options := page.options()
+
+	return options.TakeInput(), nil
+}
+
+func (page ProfileViewerPage) options() viewer.Options {
+	quit := viewer.NewOption(viewer.OptionDto{
+		Letter: 'Q',
+		Task:   viewer.TaskQuit,
+	}, []string{})
+
+	return viewer.NewOptions(
+		[]viewer.Option{
+			quit,
 		},
-		Tasks: map[string]option.TaskName{},
-	}, []string{}), nil
+	)
 }

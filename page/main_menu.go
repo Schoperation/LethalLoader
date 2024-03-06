@@ -3,8 +3,8 @@ package page
 import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
-	"schoperation/lethalloader/domain/option"
 	"schoperation/lethalloader/domain/profile"
+	"schoperation/lethalloader/domain/viewer"
 )
 
 type mainConfigUpdater interface {
@@ -31,17 +31,17 @@ func NewMainMenuPage(
 	}
 }
 
-func (page MainMenuPage) Show(args ...any) (option.Options, error) {
+func (page MainMenuPage) Show(args ...any) (viewer.OptionsResult, error) {
 	clear()
 
 	mainConfig, err := page.mainConfigUpdater.Get()
 	if err != nil {
-		return option.Options{}, err
+		return viewer.OptionsResult{}, err
 	}
 
 	profiles, err := page.profileManager.GetAll()
 	if err != nil {
-		return option.Options{}, err
+		return viewer.OptionsResult{}, err
 	}
 
 	fmt.Print("LethalLoader v0.0.1 ALPHA (expect bugs)\n")
@@ -68,16 +68,47 @@ func (page MainMenuPage) Show(args ...any) (option.Options, error) {
 	fmt.Print("Q ) Quit\n")
 	fmt.Print("\n")
 
-	return option.NewOptions(option.OptionsDto{
-		Pages: map[string]option.PageName{
-			"N":  option.PageProfileViewer,
-			"En": option.PageProfileViewer,
+	options := page.options(profiles)
+
+	return options.TakeInput(), nil
+}
+
+func (page MainMenuPage) options(profiles []profile.Profile) viewer.Options {
+	switchProfile := viewer.NewOption(viewer.OptionDto{
+		Letter:   'S',
+		Task:     "task",
+		TakesNum: true,
+	}, profiles)
+
+	newProfile := viewer.NewOption(viewer.OptionDto{
+		Letter: 'N',
+		Task:   viewer.TaskNewProfile,
+	}, []string{})
+
+	editProfile := viewer.NewOption(viewer.OptionDto{
+		Letter:   'E',
+		Page:     viewer.PageProfileViewer,
+		TakesNum: true,
+	}, profiles)
+
+	deleteProfile := viewer.NewOption(viewer.OptionDto{
+		Letter:   'D',
+		Task:     viewer.TaskDeleteProfile,
+		TakesNum: true,
+	}, profiles)
+
+	quit := viewer.NewOption(viewer.OptionDto{
+		Letter: 'Q',
+		Task:   viewer.TaskQuit,
+	}, []string{})
+
+	return viewer.NewOptions(
+		[]viewer.Option{
+			switchProfile,
+			newProfile,
+			editProfile,
+			deleteProfile,
+			quit,
 		},
-		Tasks: map[string]option.TaskName{
-			"Sn": option.TaskSwitchProfile,
-			"N":  option.TaskNewProfile,
-			"Dn": option.TaskDeleteProfile,
-			"Q":  option.TaskQuit,
-		},
-	}, profiles), nil
+	)
 }

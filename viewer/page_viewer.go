@@ -2,11 +2,11 @@ package viewer
 
 import (
 	"fmt"
-	"schoperation/lethalloader/domain/option"
+	"schoperation/lethalloader/domain/viewer"
 )
 
 type cliPage interface {
-	Show(args ...any) (option.Options, error)
+	Show(args ...any) (viewer.OptionsResult, error)
 }
 
 type cliTask interface {
@@ -16,8 +16,8 @@ type cliTask interface {
 type PageViewer struct {
 	currentTask *cliTask
 	currentPage *cliPage
-	tasks       map[option.TaskName]cliTask
-	pages       map[option.PageName]cliPage
+	tasks       map[viewer.Task]cliTask
+	pages       map[viewer.Page]cliPage
 }
 
 func NewPageViewer(
@@ -26,14 +26,14 @@ func NewPageViewer(
 	firstTimeSetupTask cliTask,
 	newProfileTask cliTask,
 ) PageViewer {
-	tasks := map[option.TaskName]cliTask{
-		option.TaskFirstTimeSetup: firstTimeSetupTask,
-		option.TaskNewProfile:     newProfileTask,
+	tasks := map[viewer.Task]cliTask{
+		viewer.TaskFirstTimeSetup: firstTimeSetupTask,
+		viewer.TaskNewProfile:     newProfileTask,
 	}
 
-	pages := map[option.PageName]cliPage{
-		option.PageMainMenu:      mainMenuPage,
-		option.PageProfileViewer: profileViewerPage,
+	pages := map[viewer.Page]cliPage{
+		viewer.PageMainMenu:      mainMenuPage,
+		viewer.PageProfileViewer: profileViewerPage,
 	}
 
 	return PageViewer{
@@ -47,8 +47,6 @@ func NewPageViewer(
 func (viewer PageViewer) Run() error {
 	var args any
 	var err error
-
-	options := viewer.NewOption(viewer.OptionDto{}, []string{})
 
 	for {
 		args, err = viewer.doTask()
