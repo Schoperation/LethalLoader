@@ -9,6 +9,7 @@ import (
 type profileDao interface {
 	GetAll() ([]profile.ProfileDto, error)
 	Save(dto profile.ProfileDto) error
+	Delete(dto profile.ProfileDto) error
 }
 
 type modListDao interface {
@@ -63,6 +64,15 @@ func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 
 func (translator ProfileTranslator) Save(pf profile.Profile) error {
 	err := translator.profileDao.Save(pf.Dto())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (translator ProfileTranslator) Delete(pf profile.Profile) error {
+	err := translator.profileDao.Delete(pf.Dto())
 	if err != nil {
 		return err
 	}

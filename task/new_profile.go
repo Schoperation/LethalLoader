@@ -1,7 +1,9 @@
 package task
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
@@ -54,8 +56,13 @@ func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 	fmt.Printf("Name?\n")
 
 	newProfileName := ""
+	reader := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Scanf("%s", &newProfileName)
+		newProfileName, err = reader.ReadString('\n')
+		if err != nil {
+			fmt.Printf("The hell was that?\n")
+			continue
+		}
 
 		if strings.TrimSpace(newProfileName) != "" {
 			if _, alreadyExists := existingProfileNames[strings.ToLower(newProfileName)]; !alreadyExists {

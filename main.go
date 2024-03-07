@@ -29,6 +29,7 @@ func main() {
 
 	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, steamChecker, profileTranslator)
 	newProfileTask := task.NewNewProfileTask(profileTranslator, listingTranslator, modTranslator)
+	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
@@ -38,6 +39,7 @@ func main() {
 		profileViewerPage,
 		firstTimeSetupTask,
 		newProfileTask,
+		deleteProfileTask,
 	)
 
 	err := pageViewer.Run()

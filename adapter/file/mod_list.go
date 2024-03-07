@@ -75,6 +75,10 @@ func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
 }
 
 func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
+	if len(slugs) == 0 {
+		return []mod.ModDto{}, nil
+	}
+
 	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return nil, err

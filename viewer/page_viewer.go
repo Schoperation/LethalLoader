@@ -23,10 +23,12 @@ func NewPageViewer(
 	profileViewerPage cliPage,
 	firstTimeSetupTask cliTask,
 	newProfileTask cliTask,
+	deleteProfileTask cliTask,
 ) PageViewer {
 	tasks := map[viewer.Task]cliTask{
 		viewer.TaskFirstTimeSetup: firstTimeSetupTask,
 		viewer.TaskNewProfile:     newProfileTask,
+		viewer.TaskDeleteProfile:  deleteProfileTask,
 	}
 
 	pages := map[viewer.Page]cliPage{
