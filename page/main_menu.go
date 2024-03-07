@@ -31,7 +31,7 @@ func NewMainMenuPage(
 	}
 }
 
-func (page MainMenuPage) Show(args ...any) (viewer.OptionsResult, error) {
+func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 	clear()
 
 	mainConfig, err := page.mainConfigUpdater.Get()

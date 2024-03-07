@@ -13,10 +13,10 @@ func NewProfileViewerPage() ProfileViewerPage {
 	return ProfileViewerPage{}
 }
 
-func (page ProfileViewerPage) Show(args ...any) (viewer.OptionsResult, error) {
+func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	clear()
 
-	profile, ok := args[0].(profile.Profile)
+	profile, ok := args.(profile.Profile)
 	if !ok {
 		return viewer.OptionsResult{}, fmt.Errorf("could not cast profile")
 	}
@@ -45,7 +45,7 @@ func (page ProfileViewerPage) Show(args ...any) (viewer.OptionsResult, error) {
 func (page ProfileViewerPage) options() viewer.Options {
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',
-		Task:   viewer.TaskQuit,
+		Page:   viewer.PageMainMenu,
 	}, []string{})
 
 	return viewer.NewOptions(

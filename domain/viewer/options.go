@@ -30,13 +30,13 @@ func (ops Options) TakeInput() OptionsResult {
 
 		option, num, err := ops.parse(choice)
 		if err != nil {
-			fmt.Printf("Bruh we got a problem: %v", err)
+			fmt.Printf("Bruh we got a problem: %v\n", err)
 			continue
 		}
 
 		result, err := NewOptionsResult(option, num)
 		if err != nil {
-			fmt.Printf("Bruh we got a problem: %v", err)
+			fmt.Printf("Bruh we got a problem: %v\n", err)
 			continue
 		}
 

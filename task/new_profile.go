@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
+	"schoperation/lethalloader/domain/viewer"
 	"strings"
 )
 
@@ -38,10 +39,10 @@ func NewNewProfileTask(
 	}
 }
 
-func (task NewProfileTask) Do(args ...any) (any, error) {
+func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 	existingProfiles, err := task.newProfileSaver.GetAll()
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	existingProfileNames := make(map[string]bool, len(existingProfiles))
@@ -72,28 +73,28 @@ func (task NewProfileTask) Do(args ...any) (any, error) {
 		Name: newProfileName,
 	})
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	bepInExListing, err := task.bepInExListingGetter.GetByNameAndAuthor("BepInExPack", "BepInEx")
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	bepInEx, err := task.bepInExGetter.GetByModListing(bepInExListing)
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	err = newProfile.AddMod(bepInEx)
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	err = task.newProfileSaver.Save(newProfile)
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
-	return newProfile, nil
+	return viewer.NewTaskResult(viewer.PageProfileViewer, newProfile), nil
 }

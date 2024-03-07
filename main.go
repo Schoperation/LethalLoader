@@ -9,6 +9,7 @@ import (
 	translator_config "schoperation/lethalloader/translator/config"
 	translator_mod "schoperation/lethalloader/translator/mod"
 	translator_profile "schoperation/lethalloader/translator/profile"
+	"schoperation/lethalloader/viewer"
 )
 
 func main() {

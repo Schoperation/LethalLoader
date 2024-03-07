@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
 	"schoperation/lethalloader/domain/profile"
+	"schoperation/lethalloader/domain/viewer"
 	"strings"
 )
 
@@ -39,21 +40,21 @@ func NewFirstTimeSetupTask(
 	}
 }
 
-func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
+func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 	mainConfig, err := task.mainConfigCreator.Get()
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	if mainConfig.GameFilePath() != "" {
-		return nil, nil
+		return viewer.NewTaskResult(viewer.PageMainMenu, nil), nil
 	}
 
 	fmt.Printf("First time? Trying to find your Lethal Company game files...\n")
 
 	gameFilePath, err := task.steamChecker.CheckDefault()
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	gameFilePath = strings.TrimSpace(gameFilePath)
@@ -63,7 +64,7 @@ func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
 
 		gameFilePath, err = task.customGameFilePath()
 		if err != nil {
-			return nil, err
+			return viewer.TaskResult{}, err
 		}
 	} else {
 		fmt.Printf("Found existing game files: %s\n", gameFilePath)
@@ -82,7 +83,7 @@ func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
 			if weGood == "n" {
 				gameFilePath, err = task.customGameFilePath()
 				if err != nil {
-					return nil, err
+					return viewer.TaskResult{}, err
 				}
 				break
 			}
@@ -97,22 +98,22 @@ func (task FirstTimeSetupTask) Do(args ...any) (any, error) {
 		Name: "Vanilla",
 	})
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	err = task.vanillaProfileSaver.Save(vanillaProfile)
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
 	mainConfig.UpdateSelectedProfile(vanillaProfile.Name())
 
 	err = task.mainConfigCreator.Save(mainConfig)
 	if err != nil {
-		return nil, err
+		return viewer.TaskResult{}, err
 	}
 
-	return nil, nil
+	return viewer.NewTaskResult(viewer.PageMainMenu, nil), nil
 }
 
 func (task FirstTimeSetupTask) customGameFilePath() (string, error) {

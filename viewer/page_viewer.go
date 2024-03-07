@@ -6,18 +6,16 @@ import (
 )
 
 type cliPage interface {
-	Show(args ...any) (viewer.OptionsResult, error)
+	Show(args any) (viewer.OptionsResult, error)
 }
 
 type cliTask interface {
-	Do(args ...any) (any, error)
+	Do(args any) (viewer.TaskResult, error)
 }
 
 type PageViewer struct {
-	currentTask *cliTask
-	currentPage *cliPage
-	tasks       map[viewer.Task]cliTask
-	pages       map[viewer.Page]cliPage
+	tasks map[viewer.Task]cliTask
+	pages map[viewer.Page]cliPage
 }
 
 func NewPageViewer(
@@ -37,66 +35,66 @@ func NewPageViewer(
 	}
 
 	return PageViewer{
-		currentPage: &mainMenuPage,
-		currentTask: &firstTimeSetupTask,
-		pages:       pages,
-		tasks:       tasks,
+		pages: pages,
+		tasks: tasks,
 	}
 }
 
-func (viewer PageViewer) Run() error {
+func (view PageViewer) Run() error {
+	currentTask := viewer.TaskFirstTimeSetup
+	var currentPage viewer.Page
 	var args any
 	var err error
 
 	for {
-		args, err = viewer.doTask()
-		if err != nil {
-			return err
+		if currentTask == "" && currentPage == "" {
+			return fmt.Errorf("no task or page selected! bruh")
 		}
 
-		options, err := viewer.showPage(args)
-		if err != nil {
-			return err
-		}
-
-		if results.Task == option.TaskQuit {
-			return nil
-		}
-
-		viewer.currentTask = nil
-		if results.Task != "" {
-			nextTask, exists := viewer.tasks[results.Task]
-			if !exists {
-				return fmt.Errorf("could not find task %s", results.Task)
+		if currentTask != "" {
+			if currentTask == viewer.TaskQuit {
+				return nil
 			}
 
-			viewer.currentTask = &nextTask
+			currentPage, args, err = view.doTask(currentTask, args)
+			if err != nil {
+				return err
+			}
 		}
 
-		viewer.currentPage = nil
-		if results.Page != "" {
-			nextPage, exists := viewer.pages[results.Page]
-			if !exists {
-				return fmt.Errorf("could not find page %s", results.Page)
+		if currentPage != "" {
+			currentTask, currentPage, args, err = view.showPage(currentPage, args)
+			if err != nil {
+				return err
 			}
-
-			viewer.currentPage = &nextPage
 		}
 	}
 }
 
-func (viewer PageViewer) doTask() (any, error) {
-	if viewer.currentTask == nil {
-		return nil, nil
+func (view PageViewer) doTask(task viewer.Task, args any) (viewer.Page, any, error) {
+	cliTask, exists := view.tasks[task]
+	if !exists {
+		return "", nil, fmt.Errorf("could not find task %s", task)
 	}
 
-	return (*viewer.currentTask).Do()
+	taskResults, err := cliTask.Do(args)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return taskResults.NextPage(), taskResults.NextArgs(), nil
 }
 
-func (viewer PageViewer) showPage(args ...any) (option.Options, error) {
-	if viewer.currentPage == nil {
-		return option.Options{}, nil
+func (view PageViewer) showPage(page viewer.Page, args any) (viewer.Task, viewer.Page, any, error) {
+	cliPage, exists := view.pages[page]
+	if !exists {
+		return "", "", nil, fmt.Errorf("could not find page %s", page)
 	}
 
-	return (*viewer.currentPage).Show(args...)
+	optionsResult, err := cliPage.Show(args)
+	if err != nil {
+		return "", "", nil, err
+	}
+
+	return optionsResult.NextTask(), optionsResult.NextPage(), optionsResult.NextArgs(), nil
 }

@@ -1,26 +1,42 @@
 package viewer
 
 type OptionsResult struct {
-	Task    Task
-	Page    Page
-	NextArg any
+	nextTask Task
+	nextPage Page
+	nextArgs any
 }
 
 func NewOptionsResult(option Option, num int) (OptionsResult, error) {
-	nextArg, err := option.Arg(num)
+	nextArgs, err := option.Arg(num)
 	if err != nil {
 		return OptionsResult{}, err
 	}
 
 	if option.DoesTask() {
 		return OptionsResult{
-			Task:    option.Task(),
-			NextArg: nextArg,
+			nextTask: option.Task(),
+			nextArgs: nextArgs,
 		}, nil
 	}
 
 	return OptionsResult{
-		Page:    option.Page(),
-		NextArg: nextArg,
+		nextPage: option.Page(),
+		nextArgs: nextArgs,
 	}, nil
+}
+
+func (result OptionsResult) HasNextTask() bool {
+	return result.nextTask != ""
+}
+
+func (result OptionsResult) NextTask() Task {
+	return result.nextTask
+}
+
+func (result OptionsResult) NextPage() Page {
+	return result.nextPage
+}
+
+func (result OptionsResult) NextArgs() any {
+	return result.nextArgs
 }
