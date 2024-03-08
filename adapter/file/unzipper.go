@@ -71,7 +71,7 @@ func (fuz FileUnzipper) extractFile(file *zip.File, unzippedFolder string) (mod.
 		return mod.FileDto{Name: "skip"}, nil
 	}
 
-	// Check for ZipSlip
+	// Check for ZipSlip.
 	if !strings.HasPrefix(path, filepath.Clean(unzippedFolder)+string(os.PathSeparator)) {
 		return mod.FileDto{}, fmt.Errorf("illegal file path: %s", path)
 	}
@@ -89,20 +89,29 @@ func (fuz FileUnzipper) extractFile(file *zip.File, unzippedFolder string) (mod.
 	if err != nil {
 		return mod.FileDto{}, err
 	}
-	defer f.Close()
 
 	_, err = io.Copy(f, rc)
 	if err != nil {
+		f.Close()
 		return mod.FileDto{}, err
 	}
 
+	f.Close()
+
+	// Reopen the file for the hasher... bruh
+	newFile, err := os.Open(path)
+	if err != nil {
+		return mod.FileDto{}, err
+	}
+	defer newFile.Close()
+
 	hasher := sha256.New()
-	_, err = io.Copy(hasher, f)
+	_, err = io.Copy(hasher, newFile)
 	if err != nil {
 		return mod.FileDto{}, err
 	}
 
-	stats, err := f.Stat()
+	stats, err := newFile.Stat()
 	if err != nil {
 		return mod.FileDto{}, err
 	}
