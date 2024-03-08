@@ -2,6 +2,7 @@ package rest
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"io"
 	"net/http"
 	"os"
@@ -21,7 +22,7 @@ func (dldr ModDownloader) Download(url string, fileName string) (mod.FileDto, er
 		return mod.FileDto{}, err
 	}
 
-	file, err := os.Create("zips/" + fileName)
+	file, err := os.Create("zips" + string(os.PathSeparator) + fileName)
 	if err != nil {
 		return mod.FileDto{}, err
 	}
@@ -44,7 +45,7 @@ func (dldr ModDownloader) Download(url string, fileName string) (mod.FileDto, er
 		return mod.FileDto{}, err
 	}
 
-	absFilePath, err := filepath.Abs("zips/" + fileName)
+	absFilePath, err := filepath.Abs("zips" + string(os.PathSeparator) + fileName)
 	if err != nil {
 		return mod.FileDto{}, err
 	}
@@ -52,6 +53,6 @@ func (dldr ModDownloader) Download(url string, fileName string) (mod.FileDto, er
 	return mod.FileDto{
 		Name:      fileName,
 		Path:      absFilePath,
-		Sha256Sum: string(hasher.Sum(nil)),
+		Sha256Sum: hex.EncodeToString(hasher.Sum(nil)),
 	}, nil
 }
