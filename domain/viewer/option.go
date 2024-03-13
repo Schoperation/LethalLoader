@@ -52,8 +52,12 @@ func (op Option) DoesTask() bool {
 }
 
 func (op Option) Arg(i int) (any, error) {
-	if !op.takesNum {
+	if !op.takesNum && len(op.possibleArgs) == 0 {
 		return nil, nil
+	}
+
+	if !op.takesNum && len(op.possibleArgs) == 1 {
+		return op.possibleArgs[0], nil
 	}
 
 	if i > len(op.possibleArgs) || i <= 0 {

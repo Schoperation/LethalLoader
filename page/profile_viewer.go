@@ -16,15 +16,15 @@ func NewProfileViewerPage() ProfileViewerPage {
 func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	clear()
 
-	profile, ok := args.(profile.Profile)
+	pfToView, ok := args.(profile.Profile)
 	if !ok {
 		return viewer.OptionsResult{}, fmt.Errorf("could not cast profile")
 	}
 
-	fmt.Printf("Profile %s\n", profile.Name())
+	fmt.Printf("Profile %s\n", pfToView.Name())
 	fmt.Print("---------------------------------------\n\n")
 
-	for i, mod := range profile.Mods() {
+	for i, mod := range pfToView.Mods() {
 		fmt.Printf("\t%d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), mod.Description())
 	}
 
@@ -37,12 +37,17 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("Q) Quit to Main Menu\n")
 	fmt.Print("\n")
 
-	options := page.options()
+	options := page.options(pfToView)
 
 	return options.TakeInput(), nil
 }
 
-func (page ProfileViewerPage) options() viewer.Options {
+func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
+	addMod := viewer.NewOption(viewer.OptionDto{
+		Letter: 'A',
+		Task:   viewer.TaskSearchTerm,
+	}, []profile.Profile{pfToView})
+
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',
 		Page:   viewer.PageMainMenu,
@@ -50,6 +55,7 @@ func (page ProfileViewerPage) options() viewer.Options {
 
 	return viewer.NewOptions(
 		[]viewer.Option{
+			addMod,
 			quit,
 		},
 	)

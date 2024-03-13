@@ -8,4 +8,5 @@ const (
 	TaskNewProfile     Task = "new_profile"
 	TaskSwitchProfile  Task = "switch_profile"
 	TaskDeleteProfile  Task = "delete_profile"
+	TaskSearchTerm     Task = "search_term"
 )
