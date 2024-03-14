@@ -9,7 +9,7 @@ import (
 	"schoperation/lethalloader/domain/mod"
 	"time"
 
-	"golang.org/x/net/html"
+	"github.com/PuerkitoBio/goquery"
 )
 
 type ThunderstoreClient struct{}
@@ -116,23 +116,29 @@ func (client ThunderstoreClient) Search(term string) ([]mod.SearchResultDto, err
 	}
 
 	defer response.Body.Close()
-	doc, err := html.Parse(response.Body)
+	doc, err := goquery.NewDocumentFromReader(response.Body)
 	if err != nil {
 		return nil, err
 	}
-}
 
-// TODO use goquery?
-func (client ThunderstoreClient) processHtmlDoc(n *html.Node) {
-	if n.Type == html.ElementNode && n.Data == "div" {
-		client.processResult(n)
-	}
+	searchResultDtos := make([]mod.SearchResultDto, 10)
 
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		client.processHtmlDoc(c)
-	}
-}
+	// Each result starts with a div with this class
+	doc.Find("col-6 col-md-4 col-lg-3 mb-2 p-1 d-flex flex-column").Each(func(i int, s *goquery.Selection) {
+		if i > 9 {
+			return
+		}
 
-func (client ThunderstoreClient) processResult(n *html.Node) {
+		title := s.Find("mb-0 overflow-hidden text-nowrap w-100").Text()
+		author := s.Find("overflow-hidden text-nowrap w-100").Text()
+		description := s.Find("bg-light px-2 flex-grow-1").Text()
 
+		searchResultDtos[i] = mod.SearchResultDto{
+			Name:        title,
+			Author:      author,
+			Description: description,
+		}
+	})
+
+	return searchResultDtos, nil
 }

@@ -48,6 +48,7 @@ func (fuzpr FileUnzipper) Unzip(zippedDto mod.FileDto) ([]mod.FileDto, error) {
 	return fileDtos, nil
 }
 
+// TODO take care of edge cases
 func (fuz FileUnzipper) extractFile(file *zip.File, unzippedFolder string) (mod.FileDto, error) {
 	rc, err := file.Open()
 	if err != nil {
