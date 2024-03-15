@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"schoperation/lethalloader/domain/mod"
 	"slices"
+	"strings"
 )
 
 type ModListDao struct {
@@ -112,6 +113,27 @@ func (dao ModListDao) GetByNameAuthorVersion(name, author, version string) (mod.
 	}
 
 	return mod.ModDto{}, fmt.Errorf("mod not found")
+}
+
+func (dao ModListDao) GetBySearchTerm(term string) ([]mod.ModDto, error) {
+	term = strings.ToLower(term)
+	term = strings.ReplaceAll(term, " ", "")
+
+	models, err := read[modModel](modListFileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var foundDtos []mod.ModDto
+	for slug, model := range models {
+		slug = strings.ToLower(slug)
+
+		if strings.Contains(slug, term) {
+			foundDtos = append(foundDtos, model.dto())
+		}
+	}
+
+	return foundDtos, nil
 }
 
 func (dao ModListDao) Save(dto mod.ModDto) error {
