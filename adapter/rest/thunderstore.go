@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"schoperation/lethalloader/domain/mod"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -105,7 +106,7 @@ func (client ThunderstoreClient) Search(term string) ([]mod.SearchResultDto, err
 	request.Header.Set("User-Agent", "LethalLoader")
 
 	queryParams := url.Values{}
-	queryParams.Add("q", url.QueryEscape(term))
+	queryParams.Add("q", term)
 	queryParams.Add("ordering", "top-rated")
 	queryParams.Add("section", "mods")
 	request.URL.RawQuery = queryParams.Encode()
@@ -121,23 +122,27 @@ func (client ThunderstoreClient) Search(term string) ([]mod.SearchResultDto, err
 		return nil, err
 	}
 
-	searchResultDtos := make([]mod.SearchResultDto, 10)
+	var searchResultDtos []mod.SearchResultDto
 
 	// Each result starts with a div with this class
-	doc.Find("col-6 col-md-4 col-lg-3 mb-2 p-1 d-flex flex-column").Each(func(i int, s *goquery.Selection) {
+	doc.Find(".col-6.col-md-4.col-lg-3.mb-2.p-1.d-flex.flex-column").Each(func(i int, s *goquery.Selection) {
 		if i > 9 {
 			return
 		}
 
-		title := s.Find("mb-0 overflow-hidden text-nowrap w-100").Text()
-		author := s.Find("overflow-hidden text-nowrap w-100").Text()
-		description := s.Find("bg-light px-2 flex-grow-1").Text()
+		title := s.Find(".mb-0.overflow-hidden.text-nowrap.w-100").Text()
+		author := s.Find(".overflow-hidden.text-nowrap.w-100").Find("a").Text()
+		description := s.Find(".bg-light.px-2.flex-grow-1").First().Text()
 
-		searchResultDtos[i] = mod.SearchResultDto{
+		description = strings.Trim(description, "\n")
+		description = strings.Trim(description, " ")
+		description = strings.Trim(description, "\n") // yes we have to do this twice...
+
+		searchResultDtos = append(searchResultDtos, mod.SearchResultDto{
 			Name:        title,
 			Author:      author,
 			Description: description,
-		}
+		})
 	})
 
 	return searchResultDtos, nil

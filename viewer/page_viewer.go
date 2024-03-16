@@ -21,19 +21,23 @@ type PageViewer struct {
 func NewPageViewer(
 	mainMenuPage cliPage,
 	profileViewerPage cliPage,
+	modSearchResultsPage cliPage,
 	firstTimeSetupTask cliTask,
 	newProfileTask cliTask,
 	deleteProfileTask cliTask,
+	searchTermTask cliTask,
 ) PageViewer {
 	tasks := map[viewer.Task]cliTask{
 		viewer.TaskFirstTimeSetup: firstTimeSetupTask,
 		viewer.TaskNewProfile:     newProfileTask,
 		viewer.TaskDeleteProfile:  deleteProfileTask,
+		viewer.TaskSearchTerm:     searchTermTask,
 	}
 
 	pages := map[viewer.Page]cliPage{
-		viewer.PageMainMenu:      mainMenuPage,
-		viewer.PageProfileViewer: profileViewerPage,
+		viewer.PageMainMenu:         mainMenuPage,
+		viewer.PageProfileViewer:    profileViewerPage,
+		viewer.PageModSearchResults: modSearchResultsPage,
 	}
 
 	return PageViewer{

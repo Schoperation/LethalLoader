@@ -115,10 +115,7 @@ func (dao ModListDao) GetByNameAuthorVersion(name, author, version string) (mod.
 	return mod.ModDto{}, fmt.Errorf("mod not found")
 }
 
-func (dao ModListDao) GetBySearchTerm(term string) ([]mod.ModDto, error) {
-	term = strings.ToLower(term)
-	term = strings.ReplaceAll(term, " ", "")
-
+func (dao ModListDao) GetAllBySearchTerm(term string) ([]mod.ModDto, error) {
 	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return nil, err

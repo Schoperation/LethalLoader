@@ -2,6 +2,7 @@ package mod
 
 import (
 	"schoperation/lethalloader/domain/mod"
+	"strings"
 )
 
 type modDownloader interface {
@@ -14,6 +15,7 @@ type modUnzipper interface {
 
 type modListDao interface {
 	GetByNameAuthorVersion(name, author, version string) (mod.ModDto, error)
+	GetAllBySearchTerm(term string) ([]mod.ModDto, error)
 	GetAll() ([]mod.ModDto, error)
 	Save(dto mod.ModDto) error
 }
@@ -77,6 +79,23 @@ func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, e
 	}
 
 	return newMod, nil
+}
+
+func (translator ModTranslator) GetAllBySearchTerm(term string) ([]mod.Mod, error) {
+	term = strings.ToLower(term)
+	term = strings.ReplaceAll(term, " ", "")
+
+	dtos, err := translator.modListDao.GetAllBySearchTerm(term)
+	if err != nil {
+		return nil, err
+	}
+
+	mods := make([]mod.Mod, len(dtos))
+	for i, dto := range dtos {
+		mods[i] = mod.ReformMod(dto)
+	}
+
+	return mods, nil
 }
 
 func (translator ModTranslator) GetAllFromList() ([]mod.Mod, error) {

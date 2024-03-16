@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"schoperation/lethalloader/domain/input"
-	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
 	"strings"
 )
@@ -18,7 +17,7 @@ func NewSearchTermTask() SearchTermTask {
 }
 
 func (task SearchTermTask) Do(args any) (viewer.TaskResult, error) {
-	pf, ok := args.(profile.Profile)
+	taskInput, ok := args.(input.SearchTermTaskInput)
 	if !ok {
 		return viewer.TaskResult{}, fmt.Errorf("could not parse profile")
 	}
@@ -44,9 +43,15 @@ func (task SearchTermTask) Do(args any) (viewer.TaskResult, error) {
 		break
 	}
 
+	term = strings.TrimSuffix(term, "\n")
+
 	if strings.ToLower(term) == "q" {
-		return viewer.NewTaskResult(viewer.PageProfileViewer, pf), nil
+		return viewer.NewTaskResult(viewer.PageProfileViewer, taskInput.Profile), nil
 	}
 
-	return viewer.NewTaskResult(viewer.PageModSearchResults, input.ModSearchResultsPageInput{Profile: pf, Term: term}), nil
+	return viewer.NewTaskResult(viewer.PageModSearchResults, input.ModSearchResultsPageInput{
+		Profile:         taskInput.Profile,
+		Term:            term,
+		SkipCacheSearch: taskInput.SkipCacheSearch,
+	}), nil
 }

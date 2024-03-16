@@ -2,6 +2,7 @@ package page
 
 import (
 	"fmt"
+	"schoperation/lethalloader/domain/input"
 	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
 )
@@ -46,7 +47,11 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 	addMod := viewer.NewOption(viewer.OptionDto{
 		Letter: 'A',
 		Task:   viewer.TaskSearchTerm,
-	}, []profile.Profile{pfToView})
+	}, []input.SearchTermTaskInput{
+		{
+			Profile:         pfToView,
+			SkipCacheSearch: false,
+		}})
 
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',

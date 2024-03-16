@@ -26,20 +26,25 @@ func main() {
 	profileTranslator := translator_profile.NewProfileTranslator(profileDao, modListDao)
 	modTranslator := translator_mod.NewModTranslator(modDownloader, unzipper, modListDao)
 	listingTranslator := translator_mod.NewListingTranslator(thunderstoreClient)
+	searchResultTranslator := translator_mod.NewSearchResultTranslator(thunderstoreClient)
 
 	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, steamChecker, profileTranslator)
 	newProfileTask := task.NewNewProfileTask(profileTranslator, listingTranslator, modTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
+	searchTermTask := task.NewSearchTermTask()
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
+	modSearchResultsPage := page.NewModSearchResultsPage(searchResultTranslator, modTranslator)
 
 	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
 		profileViewerPage,
+		modSearchResultsPage,
 		firstTimeSetupTask,
 		newProfileTask,
 		deleteProfileTask,
+		searchTermTask,
 	)
 
 	err := pageViewer.Run()

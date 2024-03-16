@@ -64,6 +64,8 @@ func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 			continue
 		}
 
+		newProfileName = strings.TrimSuffix(newProfileName, "\n")
+
 		if strings.TrimSpace(newProfileName) != "" {
 			if _, alreadyExists := existingProfileNames[strings.ToLower(newProfileName)]; !alreadyExists {
 				break
