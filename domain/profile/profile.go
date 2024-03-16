@@ -62,6 +62,7 @@ func (pf *Profile) Dto() ProfileDto {
 	for _, mod := range pf.mods {
 		modDtos[i] = mod.Dto()
 		slugs[i] = mod.Author() + "-" + mod.Name() + "-" + mod.Version()
+		i++
 	}
 
 	return ProfileDto{

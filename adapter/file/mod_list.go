@@ -85,7 +85,7 @@ func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
 		return nil, err
 	}
 
-	dtos := make([]mod.ModDto, len(models))
+	dtos := make([]mod.ModDto, len(slugs))
 	i := 0
 	for slug, model := range models {
 		if !slices.Contains(slugs, slug) {
@@ -127,6 +127,10 @@ func (dao ModListDao) GetAllBySearchTerm(term string) ([]mod.ModDto, error) {
 
 		if strings.Contains(slug, term) {
 			foundDtos = append(foundDtos, model.dto())
+		}
+
+		if len(foundDtos) == 10 {
+			break
 		}
 	}
 

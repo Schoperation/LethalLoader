@@ -49,7 +49,7 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 
 	fmt.Print("Profiles:\n")
 	for i, pf := range profiles {
-		fmt.Printf("\t%d ~ %s", i+1, pf.Name())
+		fmt.Printf("\t%02d ~ %s", i+1, pf.Name())
 
 		if pf.Name() == mainConfig.SelectedProfile() {
 			fmt.Print(" *SELECTED*")

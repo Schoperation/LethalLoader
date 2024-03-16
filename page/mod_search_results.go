@@ -82,7 +82,7 @@ func (page ModSearchResultsPage) showCachedResults(pageInput input.ModSearchResu
 
 	fmt.Printf("Cached Search Results for: %s\n\n", pageInput.Term)
 	for i, mod := range mods {
-		fmt.Printf("\t%d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), page.trimString(mod.Description()))
+		fmt.Printf("\t%02d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), page.trimString(mod.Description()))
 	}
 
 	fmt.Print("\n")
@@ -90,9 +90,28 @@ func (page ModSearchResultsPage) showCachedResults(pageInput input.ModSearchResu
 	fmt.Print("-----------\n")
 	fmt.Print("An) Add nth Mod\n")
 	fmt.Print("S) Search New Term\n")
-	fmt.Printf("T) Search Thunderstore for %s\n", pageInput.Term)
+	fmt.Printf("T) Search Thunderstore for: %s\n", pageInput.Term)
 	fmt.Print("Q) Cancel\n")
 	fmt.Print("\n")
+
+	return page.cachedResultsOptions(pageInput, mods)
+}
+
+func (page ModSearchResultsPage) cachedResultsOptions(pageInput input.ModSearchResultsPageInput, mods []mod.Mod) viewer.Options {
+	addModArgs := make([]input.AddModToProfileTaskInput, len(mods))
+	for i, mod := range mods {
+		addModArgs[i] = input.AddModToProfileTaskInput{
+			CachedMod:    mod,
+			Profile:      pageInput.Profile,
+			UseCachedMod: true,
+		}
+	}
+
+	addMod := viewer.NewOption(viewer.OptionDto{
+		Letter:   'A',
+		Task:     viewer.TaskAddModToProfile,
+		TakesNum: true,
+	}, addModArgs)
 
 	searchNewTerm := viewer.NewOption(viewer.OptionDto{
 		Letter: 'S',
@@ -116,6 +135,7 @@ func (page ModSearchResultsPage) showCachedResults(pageInput input.ModSearchResu
 
 	return viewer.NewOptions(
 		[]viewer.Option{
+			addMod,
 			searchNewTerm,
 			searchThunderstore,
 			cancel,
@@ -131,7 +151,7 @@ func (page ModSearchResultsPage) showSearchResults(pageInput input.ModSearchResu
 
 	fmt.Printf("Thunderstore Search Results for: %s\n\n", pageInput.Term)
 	for i, result := range results {
-		fmt.Printf("\t%d ~ %s ~ by %s ~ %s\n", i+1, result.Name(), result.Author(), page.trimString(result.Description()))
+		fmt.Printf("\t%02d ~ %s ~ by %s ~ %s\n", i+1, result.Name(), result.Author(), page.trimString(result.Description()))
 	}
 
 	fmt.Print("\n")
@@ -141,6 +161,25 @@ func (page ModSearchResultsPage) showSearchResults(pageInput input.ModSearchResu
 	fmt.Print("S) Search New Term\n")
 	fmt.Print("Q) Cancel\n")
 	fmt.Print("\n")
+
+	return page.thunderstoreResultsOptions(pageInput, results)
+}
+
+func (page ModSearchResultsPage) thunderstoreResultsOptions(pageInput input.ModSearchResultsPageInput, results []mod.SearchResult) viewer.Options {
+	addModArgs := make([]input.AddModToProfileTaskInput, len(results))
+	for i, result := range results {
+		addModArgs[i] = input.AddModToProfileTaskInput{
+			SearchResult: result,
+			Profile:      pageInput.Profile,
+			UseCachedMod: false,
+		}
+	}
+
+	addMod := viewer.NewOption(viewer.OptionDto{
+		Letter:   'A',
+		Task:     viewer.TaskAddModToProfile,
+		TakesNum: true,
+	}, addModArgs)
 
 	searchNewTerm := viewer.NewOption(viewer.OptionDto{
 		Letter: 'S',
@@ -154,6 +193,7 @@ func (page ModSearchResultsPage) showSearchResults(pageInput input.ModSearchResu
 
 	return viewer.NewOptions(
 		[]viewer.Option{
+			addMod,
 			searchNewTerm,
 			cancel,
 		},

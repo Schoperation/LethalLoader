@@ -26,12 +26,14 @@ func NewPageViewer(
 	newProfileTask cliTask,
 	deleteProfileTask cliTask,
 	searchTermTask cliTask,
+	addModToProfileTask cliTask,
 ) PageViewer {
 	tasks := map[viewer.Task]cliTask{
-		viewer.TaskFirstTimeSetup: firstTimeSetupTask,
-		viewer.TaskNewProfile:     newProfileTask,
-		viewer.TaskDeleteProfile:  deleteProfileTask,
-		viewer.TaskSearchTerm:     searchTermTask,
+		viewer.TaskFirstTimeSetup:  firstTimeSetupTask,
+		viewer.TaskNewProfile:      newProfileTask,
+		viewer.TaskDeleteProfile:   deleteProfileTask,
+		viewer.TaskSearchTerm:      searchTermTask,
+		viewer.TaskAddModToProfile: addModToProfileTask,
 	}
 
 	pages := map[viewer.Page]cliPage{

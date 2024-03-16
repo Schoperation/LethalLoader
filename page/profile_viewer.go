@@ -26,7 +26,7 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("---------------------------------------\n\n")
 
 	for i, mod := range pfToView.Mods() {
-		fmt.Printf("\t%d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), mod.Description())
+		fmt.Printf("\t%02d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), mod.Description())
 	}
 
 	fmt.Print("\n")
@@ -35,7 +35,7 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("U) Check for Mod Updates\n")
 	fmt.Print("A) Add Mod\n")
 	fmt.Print("R) Remove Mod\n")
-	fmt.Print("Q) Quit to Main Menu\n")
+	fmt.Print("Q) Back to Main Menu\n")
 	fmt.Print("\n")
 
 	options := page.options(pfToView)

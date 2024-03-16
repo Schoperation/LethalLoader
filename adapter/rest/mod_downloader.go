@@ -17,7 +17,7 @@ func NewModDownloader() ModDownloader {
 }
 
 func (dldr ModDownloader) Download(url string, fileName string) (mod.FileDto, error) {
-	err := os.Mkdir("zips", 0755)
+	err := os.MkdirAll("zips", 0755)
 	if err != nil {
 		return mod.FileDto{}, err
 	}

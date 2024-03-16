@@ -32,6 +32,7 @@ func main() {
 	newProfileTask := task.NewNewProfileTask(profileTranslator, listingTranslator, modTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
+	addModToProfileTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
@@ -45,6 +46,7 @@ func main() {
 		newProfileTask,
 		deleteProfileTask,
 		searchTermTask,
+		addModToProfileTask,
 	)
 
 	err := pageViewer.Run()

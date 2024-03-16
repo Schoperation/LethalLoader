@@ -61,6 +61,9 @@ func (client ThunderstoreClient) doReq(req *http.Request) (*http.Response, error
 }
 
 func (client ThunderstoreClient) GetModByNameAndAuthor(name, author string) (mod.ListingDto, error) {
+	author = strings.ReplaceAll(author, " ", "_")
+	name = strings.ReplaceAll(name, " ", "_")
+
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://thunderstore.io/api/experimental/package/%s/%s", author, name), nil)
 	if err != nil {
 		return mod.ListingDto{}, err
