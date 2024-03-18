@@ -15,7 +15,7 @@ func NewProfileViewerPage() ProfileViewerPage {
 }
 
 func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
-	//clear()
+	clear()
 
 	pfToView, ok := args.(profile.Profile)
 	if !ok {
@@ -53,6 +53,20 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 			SkipCacheSearch: false,
 		}})
 
+	removeModArgs := make([]input.RemoveModFromProfileTaskInput, len(pfToView.Mods()))
+	for i, mod := range pfToView.Mods() {
+		removeModArgs[i] = input.RemoveModFromProfileTaskInput{
+			Profile: pfToView,
+			Mod:     mod,
+		}
+	}
+
+	removeMod := viewer.NewOption(viewer.OptionDto{
+		Letter:   'R',
+		Task:     viewer.TaskRemoveModFromProfile,
+		TakesNum: true,
+	}, removeModArgs)
+
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',
 		Page:   viewer.PageMainMenu,
@@ -61,6 +75,7 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 	return viewer.NewOptions(
 		[]viewer.Option{
 			addMod,
+			removeMod,
 			quit,
 		},
 	)

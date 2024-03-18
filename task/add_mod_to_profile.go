@@ -17,20 +17,20 @@ type searchedModDownloader interface {
 	GetByModListing(listing mod.Listing) (mod.Mod, error)
 }
 
-type profileSaver interface {
+type profileWithNewModSaver interface {
 	Save(pf profile.Profile) error
 }
 
 type AddModToProfileTask struct {
 	searchedModListingGetter searchedModListingGetter
 	searchedModDownloader    searchedModDownloader
-	profileSaver             profileSaver
+	profileSaver             profileWithNewModSaver
 }
 
 func NewAddModToProfileTask(
 	searchedModListingGetter searchedModListingGetter,
 	searchedModDownloader searchedModDownloader,
-	profileSaver profileSaver,
+	profileSaver profileWithNewModSaver,
 ) AddModToProfileTask {
 	return AddModToProfileTask{
 		searchedModListingGetter: searchedModListingGetter,

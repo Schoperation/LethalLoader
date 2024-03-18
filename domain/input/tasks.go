@@ -16,3 +16,8 @@ type AddModToProfileTaskInput struct {
 	Profile      profile.Profile
 	UseCachedMod bool
 }
+
+type RemoveModFromProfileTaskInput struct {
+	Mod     mod.Mod
+	Profile profile.Profile
+}
