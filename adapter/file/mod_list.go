@@ -42,16 +42,14 @@ func (model modModel) dto() mod.ModDto {
 }
 
 type fileModel struct {
-	Name      string `json:"name"`
-	Path      string `json:"path"`
-	Sha256Sum string `json:"sha256sum"`
+	Name string `json:"name"`
+	Path string `json:"path"`
 }
 
 func (model fileModel) dto() mod.FileDto {
 	return mod.FileDto{
-		Name:      model.Name,
-		Path:      model.Path,
-		Sha256Sum: model.Sha256Sum,
+		Name: model.Name,
+		Path: model.Path,
 	}
 }
 
@@ -136,9 +134,8 @@ func (dao ModListDao) Save(dto mod.ModDto, slug string) error {
 	fileModels := make([]fileModel, len(dto.Files))
 	for j, fileDto := range dto.Files {
 		fileModels[j] = fileModel{
-			Name:      fileDto.Name,
-			Path:      fileDto.Path,
-			Sha256Sum: fileDto.Sha256Sum,
+			Name: fileDto.Name,
+			Path: fileDto.Path,
 		}
 	}
 

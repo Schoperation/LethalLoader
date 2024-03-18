@@ -2,8 +2,6 @@ package file
 
 import (
 	"archive/zip"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -90,36 +88,20 @@ func (fuz FileUnzipper) extractFile(file *zip.File, unzippedFolder string) (mod.
 	if err != nil {
 		return mod.FileDto{}, err
 	}
+	defer f.Close()
 
 	_, err = io.Copy(f, rc)
 	if err != nil {
-		f.Close()
 		return mod.FileDto{}, err
 	}
 
-	f.Close()
-
-	// Reopen the file for the hasher... bruh
-	newFile, err := os.Open(path)
-	if err != nil {
-		return mod.FileDto{}, err
-	}
-	defer newFile.Close()
-
-	hasher := sha256.New()
-	_, err = io.Copy(hasher, newFile)
-	if err != nil {
-		return mod.FileDto{}, err
-	}
-
-	stats, err := newFile.Stat()
+	stats, err := f.Stat()
 	if err != nil {
 		return mod.FileDto{}, err
 	}
 
 	return mod.FileDto{
-		Name:      stats.Name(),
-		Path:      strings.TrimPrefix(path, unzippedFolder+string(os.PathSeparator)),
-		Sha256Sum: hex.EncodeToString(hasher.Sum(nil)),
+		Name: stats.Name(),
+		Path: strings.TrimPrefix(path, unzippedFolder+string(os.PathSeparator)),
 	}, nil
 }

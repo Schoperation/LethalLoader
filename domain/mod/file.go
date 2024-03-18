@@ -6,15 +6,13 @@ import (
 )
 
 type FileDto struct {
-	Name      string
-	Path      string
-	Sha256Sum string
+	Name string
+	Path string
 }
 
 type File struct {
-	name      string
-	path      string
-	sha256sum string
+	name string
+	path string
 }
 
 func NewFile(dto FileDto) (File, error) {
@@ -28,22 +26,16 @@ func NewFile(dto FileDto) (File, error) {
 
 	dto.Path = strings.Replace(dto.Path, dto.Name, "", 1)
 
-	if strings.TrimSpace(dto.Sha256Sum) == "" {
-		return File{}, fmt.Errorf("file must have sum")
-	}
-
 	return File{
-		name:      dto.Name,
-		path:      dto.Path,
-		sha256sum: dto.Sha256Sum,
+		name: dto.Name,
+		path: dto.Path,
 	}, nil
 }
 
 func ReformFile(dto FileDto) File {
 	return File{
-		name:      dto.Name,
-		path:      dto.Path,
-		sha256sum: dto.Sha256Sum,
+		name: dto.Name,
+		path: dto.Path,
 	}
 }
 
@@ -55,14 +47,9 @@ func (file File) Path() string {
 	return file.path
 }
 
-func (file File) Sha256Sum() string {
-	return file.sha256sum
-}
-
 func (file File) Dto() FileDto {
 	return FileDto{
-		Name:      file.name,
-		Path:      file.path,
-		Sha256Sum: file.sha256sum,
+		Name: file.name,
+		Path: file.path,
 	}
 }
