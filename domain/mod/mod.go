@@ -3,6 +3,7 @@ package mod
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type ModDto struct {
@@ -10,6 +11,7 @@ type ModDto struct {
 	Version      string
 	Author       string
 	Description  string
+	DateCreated  time.Time
 	Files        []FileDto
 	Dependencies []string
 }
@@ -19,6 +21,7 @@ type Mod struct {
 	version      string
 	author       string
 	description  string
+	dateCreated  time.Time
 	files        []File
 	dependencies []Slug
 }
@@ -69,6 +72,7 @@ func NewMod(dto ModDto) (Mod, error) {
 		version:      dto.Version,
 		author:       dto.Author,
 		description:  dto.Description,
+		dateCreated:  dto.DateCreated,
 		files:        files,
 		dependencies: deps,
 	}, nil
@@ -90,6 +94,7 @@ func ReformMod(dto ModDto) Mod {
 		version:      dto.Version,
 		author:       dto.Author,
 		description:  dto.Description,
+		dateCreated:  dto.DateCreated,
 		files:        files,
 		dependencies: deps,
 	}
@@ -109,6 +114,10 @@ func (mod Mod) Author() string {
 
 func (mod Mod) Description() string {
 	return mod.description
+}
+
+func (mod Mod) DateCreated() time.Time {
+	return mod.dateCreated
 }
 
 func (mod Mod) Files() []File {
@@ -139,6 +148,7 @@ func (mod Mod) Dto() ModDto {
 		Version:      mod.version,
 		Author:       mod.author,
 		Description:  mod.description,
+		DateCreated:  mod.dateCreated,
 		Files:        fileDtos,
 		Dependencies: depStrings,
 	}

@@ -11,20 +11,20 @@ type profileWithRemovedModSaver interface {
 	Save(pf profile.Profile) error
 }
 
-type RemoveModFromProfileTask struct {
+type RemoveModTask struct {
 	profileSaver profileWithRemovedModSaver
 }
 
-func NewRemoveModFromProfileTask(
+func NewRemoveModTask(
 	profileSaver profileWithRemovedModSaver,
-) RemoveModFromProfileTask {
-	return RemoveModFromProfileTask{
+) RemoveModTask {
+	return RemoveModTask{
 		profileSaver: profileSaver,
 	}
 }
 
-func (task RemoveModFromProfileTask) Do(args any) (viewer.TaskResult, error) {
-	taskInput, ok := args.(input.RemoveModFromProfileTaskInput)
+func (task RemoveModTask) Do(args any) (viewer.TaskResult, error) {
+	taskInput, ok := args.(input.RemoveModTaskInput)
 	if !ok {
 		return viewer.TaskResult{}, fmt.Errorf("could not cast input")
 	}

@@ -1,11 +1,14 @@
 package mod
 
+import "time"
+
 type ListingDto struct {
 	Name         string
 	Version      string
 	Author       string
 	Description  string
 	DownloadUrl  string
+	DateCreated  time.Time
 	Dependencies []string
 }
 
@@ -15,6 +18,7 @@ type Listing struct {
 	author       string
 	description  string
 	downloadUrl  string
+	dateCreated  time.Time
 	dependencies []Slug
 }
 
@@ -31,6 +35,7 @@ func ReformListing(dto ListingDto) Listing {
 		author:       dto.Author,
 		description:  dto.Description,
 		downloadUrl:  dto.DownloadUrl,
+		dateCreated:  dto.DateCreated,
 		dependencies: deps,
 	}
 }
@@ -53,6 +58,10 @@ func (listing Listing) Description() string {
 
 func (listing Listing) DownloadUrl() string {
 	return listing.downloadUrl
+}
+
+func (listing Listing) DateCreated() time.Time {
+	return listing.dateCreated
 }
 
 func (listing Listing) Dependencies() []Slug {

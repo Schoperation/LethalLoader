@@ -26,19 +26,21 @@ type getLatestPackageModel struct {
 }
 
 type latestModel struct {
-	Description   string   `json:"description"`
-	Dependencies  []string `json:"dependencies"`
-	VersionNumber string   `json:"version_number"`
-	DownloadUrl   string   `json:"download_url"`
+	Description   string    `json:"description"`
+	Dependencies  []string  `json:"dependencies"`
+	VersionNumber string    `json:"version_number"`
+	DownloadUrl   string    `json:"download_url"`
+	DateCreated   time.Time `json:"date_created"`
 }
 
 type getSpecificPackageModel struct {
-	Namespace     string   `json:"namespace"`
-	Name          string   `json:"name"`
-	VersionNumber string   `json:"version_number"`
-	Description   string   `json:"description"`
-	Dependencies  []string `json:"dependencies"`
-	DownloadUrl   string   `json:"download_url"`
+	Namespace     string    `json:"namespace"`
+	Name          string    `json:"name"`
+	VersionNumber string    `json:"version_number"`
+	Description   string    `json:"description"`
+	Dependencies  []string  `json:"dependencies"`
+	DownloadUrl   string    `json:"download_url"`
+	DateCreated   time.Time `json:"date_created"`
 }
 
 func (client ThunderstoreClient) doReq(req *http.Request) (*http.Response, error) {
@@ -104,6 +106,7 @@ func (client ThunderstoreClient) GetModByNameAndAuthor(name, author string) (mod
 		Author:       model.Owner,
 		Description:  model.Latest.Description,
 		DownloadUrl:  model.Latest.DownloadUrl,
+		DateCreated:  model.Latest.DateCreated,
 		Dependencies: model.Latest.Dependencies,
 	}, nil
 }
@@ -143,6 +146,7 @@ func (client ThunderstoreClient) GetModByNameAuthorVersion(name, author, version
 		Author:       model.Namespace,
 		Description:  model.Description,
 		DownloadUrl:  model.DownloadUrl,
+		DateCreated:  model.DateCreated,
 		Dependencies: model.Dependencies,
 	}, nil
 }

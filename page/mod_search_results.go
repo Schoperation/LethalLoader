@@ -98,9 +98,9 @@ func (page ModSearchResultsPage) showCachedResults(pageInput input.ModSearchResu
 }
 
 func (page ModSearchResultsPage) cachedResultsOptions(pageInput input.ModSearchResultsPageInput, mods []mod.Mod) viewer.Options {
-	addModArgs := make([]input.AddModToProfileTaskInput, len(mods))
+	addModArgs := make([]input.AddModTaskInput, len(mods))
 	for i, mod := range mods {
-		addModArgs[i] = input.AddModToProfileTaskInput{
+		addModArgs[i] = input.AddModTaskInput{
 			CachedMod:    mod,
 			Profile:      pageInput.Profile,
 			UseCachedMod: true,
@@ -109,7 +109,7 @@ func (page ModSearchResultsPage) cachedResultsOptions(pageInput input.ModSearchR
 
 	addMod := viewer.NewOption(viewer.OptionDto{
 		Letter:   'A',
-		Task:     viewer.TaskAddModToProfile,
+		Task:     viewer.TaskAddMod,
 		TakesNum: true,
 	}, addModArgs)
 
@@ -166,9 +166,9 @@ func (page ModSearchResultsPage) showSearchResults(pageInput input.ModSearchResu
 }
 
 func (page ModSearchResultsPage) thunderstoreResultsOptions(pageInput input.ModSearchResultsPageInput, results []mod.SearchResult) viewer.Options {
-	addModArgs := make([]input.AddModToProfileTaskInput, len(results))
+	addModArgs := make([]input.AddModTaskInput, len(results))
 	for i, result := range results {
-		addModArgs[i] = input.AddModToProfileTaskInput{
+		addModArgs[i] = input.AddModTaskInput{
 			SearchResult: result,
 			Profile:      pageInput.Profile,
 			UseCachedMod: false,
@@ -177,7 +177,7 @@ func (page ModSearchResultsPage) thunderstoreResultsOptions(pageInput input.ModS
 
 	addMod := viewer.NewOption(viewer.OptionDto{
 		Letter:   'A',
-		Task:     viewer.TaskAddModToProfile,
+		Task:     viewer.TaskAddMod,
 		TakesNum: true,
 	}, addModArgs)
 

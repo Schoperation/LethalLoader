@@ -68,6 +68,7 @@ func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, e
 		Version:      listing.Version(),
 		Author:       listing.Author(),
 		Description:  listing.Description(),
+		DateCreated:  listing.DateCreated(),
 		Files:        fileDtos,
 		Dependencies: deps,
 	}

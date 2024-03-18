@@ -5,6 +5,7 @@ import (
 	"schoperation/lethalloader/domain/mod"
 	"slices"
 	"strings"
+	"time"
 )
 
 type ModListDao struct {
@@ -21,6 +22,7 @@ type modModel struct {
 	Version      string      `json:"version"`
 	Author       string      `json:"author"`
 	Description  string      `json:"description"`
+	DateCreated  time.Time   `json:"date_created"`
 	Dependencies []string    `json:"dependencies"`
 	Files        []fileModel `json:"files"`
 }
@@ -36,6 +38,7 @@ func (model modModel) dto() mod.ModDto {
 		Version:      model.Version,
 		Author:       model.Author,
 		Description:  model.Description,
+		DateCreated:  model.DateCreated,
 		Dependencies: model.Dependencies,
 		Files:        fileDtos,
 	}
@@ -144,6 +147,7 @@ func (dao ModListDao) Save(dto mod.ModDto, slug string) error {
 		Version:      dto.Version,
 		Author:       dto.Author,
 		Description:  dto.Description,
+		DateCreated:  dto.DateCreated,
 		Dependencies: dto.Dependencies,
 		Files:        fileModels,
 	}

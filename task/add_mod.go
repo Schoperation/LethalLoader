@@ -21,26 +21,26 @@ type profileWithNewModSaver interface {
 	Save(pf profile.Profile) error
 }
 
-type AddModToProfileTask struct {
-	searchedModListingGetter searchedModListingGetter
-	searchedModDownloader    searchedModDownloader
-	profileSaver             profileWithNewModSaver
+type AddModTask struct {
+	modListingGetter searchedModListingGetter
+	modDownloader    searchedModDownloader
+	profileSaver     profileWithNewModSaver
 }
 
 func NewAddModToProfileTask(
-	searchedModListingGetter searchedModListingGetter,
-	searchedModDownloader searchedModDownloader,
+	modListingGetter searchedModListingGetter,
+	modDownloader searchedModDownloader,
 	profileSaver profileWithNewModSaver,
-) AddModToProfileTask {
-	return AddModToProfileTask{
-		searchedModListingGetter: searchedModListingGetter,
-		searchedModDownloader:    searchedModDownloader,
-		profileSaver:             profileSaver,
+) AddModTask {
+	return AddModTask{
+		modListingGetter: modListingGetter,
+		modDownloader:    modDownloader,
+		profileSaver:     profileSaver,
 	}
 }
 
-func (task AddModToProfileTask) Do(args any) (viewer.TaskResult, error) {
-	taskInput, ok := args.(input.AddModToProfileTaskInput)
+func (task AddModTask) Do(args any) (viewer.TaskResult, error) {
+	taskInput, ok := args.(input.AddModTaskInput)
 	if !ok {
 		return viewer.TaskResult{}, fmt.Errorf("could not cast input")
 	}
@@ -54,12 +54,12 @@ func (task AddModToProfileTask) Do(args any) (viewer.TaskResult, error) {
 
 	newMod := taskInput.CachedMod
 	if !taskInput.UseCachedMod {
-		listing, err := task.searchedModListingGetter.GetByNameAndAuthor(taskInput.SearchResult.Name(), taskInput.SearchResult.Author())
+		listing, err := task.modListingGetter.GetByNameAndAuthor(taskInput.SearchResult.Name(), taskInput.SearchResult.Author())
 		if err != nil {
 			return viewer.TaskResult{}, err
 		}
 
-		newMod, err = task.searchedModDownloader.GetByModListing(listing)
+		newMod, err = task.modDownloader.GetByModListing(listing)
 		if err != nil {
 			return viewer.TaskResult{}, err
 		}
@@ -84,7 +84,7 @@ func (task AddModToProfileTask) Do(args any) (viewer.TaskResult, error) {
 	return viewer.NewTaskResult(viewer.PageProfileViewer, taskInput.Profile), nil
 }
 
-func (task AddModToProfileTask) addDependencies(newMod mod.Mod) ([]mod.Mod, error) {
+func (task AddModTask) addDependencies(newMod mod.Mod) ([]mod.Mod, error) {
 	if len(newMod.Dependencies()) == 0 {
 		return nil, nil
 	}
@@ -98,12 +98,12 @@ func (task AddModToProfileTask) addDependencies(newMod mod.Mod) ([]mod.Mod, erro
 	var additionalMods []mod.Mod
 
 	for _, dep := range newMod.Dependencies() {
-		listing, err := task.searchedModListingGetter.GetBySlug(dep)
+		listing, err := task.modListingGetter.GetBySlug(dep)
 		if err != nil {
 			return nil, err
 		}
 
-		depMod, err := task.searchedModDownloader.GetByModListing(listing)
+		depMod, err := task.modDownloader.GetByModListing(listing)
 		if err != nil {
 			return nil, err
 		}

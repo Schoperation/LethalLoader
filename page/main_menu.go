@@ -69,7 +69,6 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("\n")
 
 	options := page.options(profiles)
-
 	return options.TakeInput(), nil
 }
 

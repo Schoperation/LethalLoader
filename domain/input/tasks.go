@@ -10,14 +10,19 @@ type SearchTermTaskInput struct {
 	SkipCacheSearch bool
 }
 
-type AddModToProfileTaskInput struct {
+type AddModTaskInput struct {
 	CachedMod    mod.Mod
 	SearchResult mod.SearchResult
 	Profile      profile.Profile
 	UseCachedMod bool
 }
 
-type RemoveModFromProfileTaskInput struct {
+type RemoveModTaskInput struct {
 	Mod     mod.Mod
 	Profile profile.Profile
+}
+
+type UpdateModsTaskInput struct {
+	Listings []mod.Listing
+	Profile  profile.Profile
 }

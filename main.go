@@ -33,7 +33,7 @@ func main() {
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
 	addModToProfileTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)
-	removeModFromProfileTask := task.NewRemoveModFromProfileTask(profileTranslator)
+	removeModFromProfileTask := task.NewRemoveModTask(profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()

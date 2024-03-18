@@ -39,7 +39,6 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("\n")
 
 	options := page.options(pfToView)
-
 	return options.TakeInput(), nil
 }
 
@@ -53,9 +52,9 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 			SkipCacheSearch: false,
 		}})
 
-	removeModArgs := make([]input.RemoveModFromProfileTaskInput, len(pfToView.Mods()))
+	removeModArgs := make([]input.RemoveModTaskInput, len(pfToView.Mods()))
 	for i, mod := range pfToView.Mods() {
-		removeModArgs[i] = input.RemoveModFromProfileTaskInput{
+		removeModArgs[i] = input.RemoveModTaskInput{
 			Profile: pfToView,
 			Mod:     mod,
 		}
@@ -63,7 +62,7 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 
 	removeMod := viewer.NewOption(viewer.OptionDto{
 		Letter:   'R',
-		Task:     viewer.TaskRemoveModFromProfile,
+		Task:     viewer.TaskRemoveMod,
 		TakesNum: true,
 	}, removeModArgs)
 
