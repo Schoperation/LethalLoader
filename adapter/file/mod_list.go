@@ -55,10 +55,6 @@ func (model fileModel) dto() mod.FileDto {
 	}
 }
 
-func (dao ModListDao) slug(name, author, version string) string {
-	return author + "-" + name + "-" + version
-}
-
 func (dao ModListDao) GetAll() ([]mod.ModDto, error) {
 	models, err := read[modModel](modListFileName)
 	if err != nil {
@@ -99,13 +95,12 @@ func (dao ModListDao) GetAllBySlugs(slugs []string) ([]mod.ModDto, error) {
 	return dtos, nil
 }
 
-func (dao ModListDao) GetByNameAuthorVersion(name, author, version string) (mod.ModDto, error) {
+func (dao ModListDao) GetBySlug(slug string) (mod.ModDto, error) {
 	models, err := read[modModel](modListFileName)
 	if err != nil {
 		return mod.ModDto{}, err
 	}
 
-	slug := dao.slug(name, author, version)
 	for slugKey, model := range models {
 		if slugKey == slug {
 			return model.dto(), nil
@@ -137,7 +132,7 @@ func (dao ModListDao) GetAllBySearchTerm(term string) ([]mod.ModDto, error) {
 	return foundDtos, nil
 }
 
-func (dao ModListDao) Save(dto mod.ModDto) error {
+func (dao ModListDao) Save(dto mod.ModDto, slug string) error {
 	fileModels := make([]fileModel, len(dto.Files))
 	for j, fileDto := range dto.Files {
 		fileModels[j] = fileModel{
@@ -161,7 +156,6 @@ func (dao ModListDao) Save(dto mod.ModDto) error {
 		return err
 	}
 
-	slug := dao.slug(dto.Name, dto.Author, dto.Version)
 	models[slug] = newModModel
 
 	err = write(modListFileName, models)

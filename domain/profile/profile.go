@@ -3,6 +3,7 @@ package profile
 import (
 	"fmt"
 	"schoperation/lethalloader/domain/mod"
+	"slices"
 	"strings"
 )
 
@@ -52,6 +53,18 @@ func (pf *Profile) Mods() []mod.Mod {
 		i++
 	}
 
+	slices.SortFunc(mods, func(a, b mod.Mod) int {
+		if a.Name() < b.Name() {
+			return -1
+		}
+
+		if a.Name() > b.Name() {
+			return 1
+		}
+
+		return 0
+	})
+
 	return mods
 }
 
@@ -72,16 +85,14 @@ func (pf *Profile) Dto() ProfileDto {
 	}
 }
 
-func (pf *Profile) AddMod(newMod mod.Mod) error {
+func (pf *Profile) AddMod(newMod mod.Mod) {
 	if _, exists := pf.mods[newMod.Name()]; exists {
-		return fmt.Errorf("mod is already added")
+		return
 	}
 
 	pf.mods[newMod.Name()] = newMod
-	return nil
 }
 
-func (pf *Profile) RemoveMod(modToRemove mod.Mod) error {
+func (pf *Profile) RemoveMod(modToRemove mod.Mod) {
 	delete(pf.mods, modToRemove.Name())
-	return nil
 }

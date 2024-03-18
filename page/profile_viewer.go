@@ -15,7 +15,7 @@ func NewProfileViewerPage() ProfileViewerPage {
 }
 
 func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
-	clear()
+	//clear()
 
 	pfToView, ok := args.(profile.Profile)
 	if !ok {

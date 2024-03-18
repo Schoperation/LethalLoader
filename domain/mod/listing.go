@@ -15,17 +15,23 @@ type Listing struct {
 	author       string
 	description  string
 	downloadUrl  string
-	dependencies []string
+	dependencies []Slug
 }
 
 func ReformListing(dto ListingDto) Listing {
+	var deps []Slug
+	for _, dep := range dto.Dependencies {
+		depSlug := ReformSlugFromString(dep)
+		deps = append(deps, depSlug)
+	}
+
 	return Listing{
 		name:         dto.Name,
 		version:      dto.Version,
 		author:       dto.Author,
 		description:  dto.Description,
 		downloadUrl:  dto.DownloadUrl,
-		dependencies: dto.Dependencies,
+		dependencies: deps,
 	}
 }
 
@@ -49,6 +55,10 @@ func (listing Listing) DownloadUrl() string {
 	return listing.downloadUrl
 }
 
-func (listing Listing) Dependencies() []string {
+func (listing Listing) Dependencies() []Slug {
 	return listing.dependencies
+}
+
+func (listing Listing) Slug() Slug {
+	return ReformSlug(listing.name, listing.author, listing.version)
 }

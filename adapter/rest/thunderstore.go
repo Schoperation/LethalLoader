@@ -19,7 +19,7 @@ func NewThunderstoreClient() ThunderstoreClient {
 	return ThunderstoreClient{}
 }
 
-type getPackageModel struct {
+type getLatestPackageModel struct {
 	Name   string      `json:"name"`
 	Owner  string      `json:"owner"`
 	Latest latestModel `json:"latest"`
@@ -29,6 +29,15 @@ type latestModel struct {
 	Description   string   `json:"description"`
 	Dependencies  []string `json:"dependencies"`
 	VersionNumber string   `json:"version_number"`
+	DownloadUrl   string   `json:"download_url"`
+}
+
+type getSpecificPackageModel struct {
+	Namespace     string   `json:"namespace"`
+	Name          string   `json:"name"`
+	VersionNumber string   `json:"version_number"`
+	Description   string   `json:"description"`
+	Dependencies  []string `json:"dependencies"`
 	DownloadUrl   string   `json:"download_url"`
 }
 
@@ -83,7 +92,7 @@ func (client ThunderstoreClient) GetModByNameAndAuthor(name, author string) (mod
 		return mod.ListingDto{}, err
 	}
 
-	var model getPackageModel
+	var model getLatestPackageModel
 	err = json.Unmarshal(body, &model)
 	if err != nil {
 		return mod.ListingDto{}, err
@@ -96,6 +105,45 @@ func (client ThunderstoreClient) GetModByNameAndAuthor(name, author string) (mod
 		Description:  model.Latest.Description,
 		DownloadUrl:  model.Latest.DownloadUrl,
 		Dependencies: model.Latest.Dependencies,
+	}, nil
+}
+
+func (client ThunderstoreClient) GetModByNameAuthorVersion(name, author, version string) (mod.ListingDto, error) {
+	author = strings.ReplaceAll(author, " ", "_")
+	name = strings.ReplaceAll(name, " ", "_")
+
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://thunderstore.io/api/experimental/package/%s/%s/%s", author, name, version), nil)
+	if err != nil {
+		return mod.ListingDto{}, err
+	}
+
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("User-Agent", "LethalLoader")
+
+	response, err := client.doReq(request)
+	if err != nil {
+		return mod.ListingDto{}, err
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return mod.ListingDto{}, err
+	}
+
+	var model getSpecificPackageModel
+	err = json.Unmarshal(body, &model)
+	if err != nil {
+		return mod.ListingDto{}, err
+	}
+
+	return mod.ListingDto{
+		Name:         model.Name,
+		Version:      model.VersionNumber,
+		Author:       model.Namespace,
+		Description:  model.Description,
+		DownloadUrl:  model.DownloadUrl,
+		Dependencies: model.Dependencies,
 	}, nil
 }
 

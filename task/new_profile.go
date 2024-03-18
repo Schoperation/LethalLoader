@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
 	"strings"
@@ -15,29 +14,15 @@ type newProfileSaver interface {
 	Save(pf profile.Profile) error
 }
 
-type bepInExListingGetter interface {
-	GetByNameAndAuthor(name, author string) (mod.Listing, error)
-}
-
-type bepInExGetter interface {
-	GetByModListing(listing mod.Listing) (mod.Mod, error)
-}
-
 type NewProfileTask struct {
-	newProfileSaver      newProfileSaver
-	bepInExListingGetter bepInExListingGetter
-	bepInExGetter        bepInExGetter
+	newProfileSaver newProfileSaver
 }
 
 func NewNewProfileTask(
 	newProfileSaver newProfileSaver,
-	bepInExListingGetter bepInExListingGetter,
-	bepInExGetter bepInExGetter,
 ) NewProfileTask {
 	return NewProfileTask{
-		newProfileSaver:      newProfileSaver,
-		bepInExListingGetter: bepInExListingGetter,
-		bepInExGetter:        bepInExGetter,
+		newProfileSaver: newProfileSaver,
 	}
 }
 
@@ -81,21 +66,6 @@ func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 	newProfile, err := profile.NewBlankProfile(profile.ProfileDto{
 		Name: newProfileName,
 	})
-	if err != nil {
-		return viewer.TaskResult{}, err
-	}
-
-	bepInExListing, err := task.bepInExListingGetter.GetByNameAndAuthor("BepInExPack", "BepInEx")
-	if err != nil {
-		return viewer.TaskResult{}, err
-	}
-
-	bepInEx, err := task.bepInExGetter.GetByModListing(bepInExListing)
-	if err != nil {
-		return viewer.TaskResult{}, err
-	}
-
-	err = newProfile.AddMod(bepInEx)
 	if err != nil {
 		return viewer.TaskResult{}, err
 	}

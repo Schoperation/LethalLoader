@@ -29,7 +29,7 @@ func main() {
 	searchResultTranslator := translator_mod.NewSearchResultTranslator(thunderstoreClient)
 
 	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, steamChecker, profileTranslator)
-	newProfileTask := task.NewNewProfileTask(profileTranslator, listingTranslator, modTranslator)
+	newProfileTask := task.NewNewProfileTask(profileTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
 	addModToProfileTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)

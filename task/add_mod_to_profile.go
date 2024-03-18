@@ -10,6 +10,7 @@ import (
 
 type searchedModListingGetter interface {
 	GetByNameAndAuthor(name, author string) (mod.Listing, error)
+	GetBySlug(slug mod.Slug) (mod.Listing, error)
 }
 
 type searchedModDownloader interface {
@@ -64,11 +65,15 @@ func (task AddModToProfileTask) Do(args any) (viewer.TaskResult, error) {
 		}
 	}
 
-	// TODO add deps (other than bepinex)
+	taskInput.Profile.AddMod(newMod)
 
-	err := taskInput.Profile.AddMod(newMod)
+	additionalMods, err := task.addDependencies(newMod)
 	if err != nil {
 		return viewer.TaskResult{}, err
+	}
+
+	for _, addMod := range additionalMods {
+		taskInput.Profile.AddMod(addMod)
 	}
 
 	err = task.profileSaver.Save(taskInput.Profile)
@@ -77,4 +82,41 @@ func (task AddModToProfileTask) Do(args any) (viewer.TaskResult, error) {
 	}
 
 	return viewer.NewTaskResult(viewer.PageProfileViewer, taskInput.Profile), nil
+}
+
+func (task AddModToProfileTask) addDependencies(newMod mod.Mod) ([]mod.Mod, error) {
+	if len(newMod.Dependencies()) == 0 {
+		return nil, nil
+	}
+
+	pluralDeps := "dependencies"
+	if len(newMod.Dependencies()) == 1 {
+		pluralDeps = "dependency"
+	}
+
+	fmt.Printf("Adding %d %s for %s...\n", len(newMod.Dependencies()), pluralDeps, newMod.Name())
+	var additionalMods []mod.Mod
+
+	for _, dep := range newMod.Dependencies() {
+		listing, err := task.searchedModListingGetter.GetBySlug(dep)
+		if err != nil {
+			return nil, err
+		}
+
+		depMod, err := task.searchedModDownloader.GetByModListing(listing)
+		if err != nil {
+			return nil, err
+		}
+
+		additionalMods = append(additionalMods, depMod)
+
+		moreDeps, err := task.addDependencies(depMod)
+		if err != nil {
+			return nil, err
+		}
+
+		additionalMods = append(additionalMods, moreDeps...)
+	}
+
+	return additionalMods, nil
 }

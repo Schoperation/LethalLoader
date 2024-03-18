@@ -14,10 +14,10 @@ type modUnzipper interface {
 }
 
 type modListDao interface {
-	GetByNameAuthorVersion(name, author, version string) (mod.ModDto, error)
+	GetBySlug(slug string) (mod.ModDto, error)
 	GetAllBySearchTerm(term string) ([]mod.ModDto, error)
 	GetAll() ([]mod.ModDto, error)
-	Save(dto mod.ModDto) error
+	Save(dto mod.ModDto, slug string) error
 }
 
 type ModTranslator struct {
@@ -39,7 +39,7 @@ func NewModTranslator(
 }
 
 func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, error) {
-	cachedMod, err := translator.modListDao.GetByNameAuthorVersion(listing.Name(), listing.Author(), listing.Version())
+	cachedMod, err := translator.modListDao.GetBySlug(listing.Slug().String())
 	if err != nil && err.Error() != "mod not found" {
 		return mod.Mod{}, err
 	}
@@ -48,8 +48,7 @@ func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, e
 		return mod.ReformMod(cachedMod), nil
 	}
 
-	fileName := listing.Author() + "-" + listing.Name() + "-" + listing.Version()
-	zipFile, err := translator.modDownloader.Download(listing.DownloadUrl(), fileName)
+	zipFile, err := translator.modDownloader.Download(listing.DownloadUrl(), listing.Slug().String())
 	if err != nil {
 		return mod.Mod{}, err
 	}
@@ -59,13 +58,18 @@ func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, e
 		return mod.Mod{}, err
 	}
 
+	deps := make([]string, len(listing.Dependencies()))
+	for i, dep := range listing.Dependencies() {
+		deps[i] = dep.String()
+	}
+
 	newModDto := mod.ModDto{
 		Name:         listing.Name(),
 		Version:      listing.Version(),
 		Author:       listing.Author(),
 		Description:  listing.Description(),
 		Files:        fileDtos,
-		Dependencies: listing.Dependencies(),
+		Dependencies: deps,
 	}
 
 	newMod, err := mod.NewMod(newModDto)
@@ -73,7 +77,7 @@ func (translator ModTranslator) GetByModListing(listing mod.Listing) (mod.Mod, e
 		return mod.Mod{}, err
 	}
 
-	err = translator.modListDao.Save(newModDto)
+	err = translator.modListDao.Save(newModDto, listing.Slug().String())
 	if err != nil {
 		return mod.Mod{}, err
 	}
@@ -113,7 +117,7 @@ func (translator ModTranslator) GetAllFromList() ([]mod.Mod, error) {
 }
 
 func (translator ModTranslator) SaveToList(mod mod.Mod) error {
-	err := translator.modListDao.Save(mod.Dto())
+	err := translator.modListDao.Save(mod.Dto(), mod.Slug().String())
 	if err != nil {
 		return err
 	}
