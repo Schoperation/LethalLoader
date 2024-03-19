@@ -20,9 +20,9 @@ func NewFile(dto FileDto) (File, error) {
 		return File{}, fmt.Errorf("file must have name")
 	}
 
-	if strings.TrimSpace(dto.Path) == "" {
-		return File{}, fmt.Errorf("file must have path")
-	}
+	// if strings.TrimSpace(dto.Path) == "" {
+	// 	return File{}, fmt.Errorf("file must have path")
+	// }
 
 	dto.Path = strings.Replace(dto.Path, dto.Name, "", 1)
 

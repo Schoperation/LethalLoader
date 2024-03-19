@@ -16,18 +16,26 @@ type modListDao interface {
 	GetAllBySlugs(slugs []string) ([]mod.ModDto, error)
 }
 
+type gameFilesDao interface {
+	DeleteFilesByProfile(pf profile.ProfileDto, gameFilesPath string) error
+	AddFilesByProfile(pf profile.ProfileDto, gameFilesPath string) error
+}
+
 type ProfileTranslator struct {
-	profileDao profileDao
-	modListDao modListDao
+	profileDao   profileDao
+	modListDao   modListDao
+	gameFilesDao gameFilesDao
 }
 
 func NewProfileTranslator(
 	profileDao profileDao,
 	modListDao modListDao,
+	gameFilesDao gameFilesDao,
 ) ProfileTranslator {
 	return ProfileTranslator{
-		profileDao: profileDao,
-		modListDao: modListDao,
+		profileDao:   profileDao,
+		modListDao:   modListDao,
+		gameFilesDao: gameFilesDao,
 	}
 }
 
@@ -73,6 +81,24 @@ func (translator ProfileTranslator) Save(pf profile.Profile) error {
 
 func (translator ProfileTranslator) Delete(pf profile.Profile) error {
 	err := translator.profileDao.Delete(pf.Dto())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (translator ProfileTranslator) Switch(oldPf profile.Profile, newPf profile.Profile, gameFilesPath string) error {
+	if oldPf.Name() == newPf.Name() {
+		return nil
+	}
+
+	err := translator.gameFilesDao.DeleteFilesByProfile(oldPf.Dto(), gameFilesPath)
+	if err != nil {
+		return err
+	}
+
+	err = translator.gameFilesDao.AddFilesByProfile(newPf.Dto(), gameFilesPath)
 	if err != nil {
 		return err
 	}

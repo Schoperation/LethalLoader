@@ -30,6 +30,7 @@ func NewPageViewer(
 	addModTask cliTask,
 	removeModTask cliTask,
 	updateModsTask cliTask,
+	switchProfileTask cliTask,
 ) PageViewer {
 	tasks := map[viewer.Task]cliTask{
 		viewer.TaskFirstTimeSetup: firstTimeSetupTask,
@@ -39,6 +40,7 @@ func NewPageViewer(
 		viewer.TaskAddMod:         addModTask,
 		viewer.TaskRemoveMod:      removeModTask,
 		viewer.TaskUpdateMods:     updateModsTask,
+		viewer.TaskSwitchProfile:  switchProfileTask,
 	}
 
 	pages := map[viewer.Page]cliPage{

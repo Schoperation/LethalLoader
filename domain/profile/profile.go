@@ -72,9 +72,10 @@ func (pf *Profile) Dto() ProfileDto {
 	modDtos := make([]mod.ModDto, len(pf.mods))
 	slugs := make([]string, len(pf.mods))
 	i := 0
-	for _, mod := range pf.mods {
-		modDtos[i] = mod.Dto()
-		slugs[i] = mod.Author() + "-" + mod.Name() + "-" + mod.Version()
+	for _, modd := range pf.mods {
+		modDtos[i] = modd.Dto()
+		slug := mod.ReformSlug(modd.Name(), modd.Author(), modd.Version())
+		slugs[i] = slug.String()
 		i++
 	}
 

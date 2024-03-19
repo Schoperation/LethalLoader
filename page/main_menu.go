@@ -3,46 +3,48 @@ package page
 import (
 	"fmt"
 	"schoperation/lethalloader/domain/config"
+	"schoperation/lethalloader/domain/input"
 	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
 )
 
-type mainConfigUpdater interface {
+type selectedProfileGetter interface {
 	Get() (config.MainConfig, error)
-	Save(mainConfig config.MainConfig) error
 }
 
-type profileManager interface {
+type allProfilesGetter interface {
 	GetAll() ([]profile.Profile, error)
 }
 
 type MainMenuPage struct {
-	mainConfigUpdater mainConfigUpdater
-	profileManager    profileManager
+	selectedProfileGetter selectedProfileGetter
+	allProfilesGetter     allProfilesGetter
 }
 
 func NewMainMenuPage(
-	mainConfigUpdater mainConfigUpdater,
-	profileManager profileManager,
+	selectedProfileGetter selectedProfileGetter,
+	allProfilesGetter allProfilesGetter,
 ) MainMenuPage {
 	return MainMenuPage{
-		mainConfigUpdater: mainConfigUpdater,
-		profileManager:    profileManager,
+		selectedProfileGetter: selectedProfileGetter,
+		allProfilesGetter:     allProfilesGetter,
 	}
 }
 
 func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 	clear()
 
-	mainConfig, err := page.mainConfigUpdater.Get()
+	mainConfig, err := page.selectedProfileGetter.Get()
 	if err != nil {
 		return viewer.OptionsResult{}, err
 	}
 
-	profiles, err := page.profileManager.GetAll()
+	profiles, err := page.allProfilesGetter.GetAll()
 	if err != nil {
 		return viewer.OptionsResult{}, err
 	}
+
+	currentProfile := profile.Profile{}
 
 	fmt.Print("LethalLoader v0.0.1 ALPHA (expect bugs)\n")
 	fmt.Print("---------------------------------------\n\n")
@@ -53,6 +55,7 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 
 		if pf.Name() == mainConfig.SelectedProfile() {
 			fmt.Print(" *SELECTED*")
+			currentProfile = pf
 		}
 
 		fmt.Print("\n")
@@ -68,16 +71,24 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("Q ) Quit\n")
 	fmt.Print("\n")
 
-	options := page.options(profiles)
+	options := page.options(currentProfile, profiles)
 	return options.TakeInput(), nil
 }
 
-func (page MainMenuPage) options(profiles []profile.Profile) viewer.Options {
+func (page MainMenuPage) options(currentProfile profile.Profile, profiles []profile.Profile) viewer.Options {
+	switchProfileInputs := make([]input.SwitchProfileTaskInput, len(profiles))
+	for i, pf := range profiles {
+		switchProfileInputs[i] = input.SwitchProfileTaskInput{
+			OldProfile: currentProfile,
+			NewProfile: pf,
+		}
+	}
+
 	switchProfile := viewer.NewOption(viewer.OptionDto{
 		Letter:   'S',
-		Task:     "task",
+		Task:     viewer.TaskSwitchProfile,
 		TakesNum: true,
-	}, profiles)
+	}, switchProfileInputs)
 
 	newProfile := viewer.NewOption(viewer.OptionDto{
 		Letter: 'N',

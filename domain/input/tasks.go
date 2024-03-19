@@ -26,3 +26,8 @@ type UpdateModsTaskInput struct {
 	Listings []mod.Listing
 	Profile  profile.Profile
 }
+
+type SwitchProfileTaskInput struct {
+	OldProfile profile.Profile
+	NewProfile profile.Profile
+}

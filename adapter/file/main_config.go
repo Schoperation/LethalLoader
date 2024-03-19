@@ -37,14 +37,14 @@ func (dao MainConfigDao) Get() (config.MainConfigDto, error) {
 	}
 
 	return config.MainConfigDto{
-		GameFilePath:    model.GameFilePath,
+		GameFilesPath:   model.GameFilePath,
 		SelectedProfile: model.SelectedProfile,
 	}, nil
 }
 
 func (dao MainConfigDao) Save(dto config.MainConfigDto) error {
 	model := mainConfigModel{
-		GameFilePath:    dto.GameFilePath,
+		GameFilePath:    dto.GameFilesPath,
 		SelectedProfile: dto.SelectedProfile,
 	}
 

@@ -13,9 +13,9 @@ type mainConfigCreator interface {
 	Save(mainConfig config.MainConfig) error
 }
 
-type steamChecker interface {
-	CheckDefault() (string, error)
-	Check(path string) (bool, error)
+type gameFilesPathChecker interface {
+	CheckDefaultPath() (string, error)
+	CheckPath(path string) (bool, error)
 }
 
 type vanillaProfileSaver interface {
@@ -23,20 +23,20 @@ type vanillaProfileSaver interface {
 }
 
 type FirstTimeSetupTask struct {
-	mainConfigCreator   mainConfigCreator
-	steamChecker        steamChecker
-	vanillaProfileSaver vanillaProfileSaver
+	mainConfigCreator    mainConfigCreator
+	gameFilesPathChecker gameFilesPathChecker
+	vanillaProfileSaver  vanillaProfileSaver
 }
 
 func NewFirstTimeSetupTask(
 	mainConfigCreator mainConfigCreator,
-	steamChecker steamChecker,
+	gameFilesPathChecker gameFilesPathChecker,
 	vanillaProfileSaver vanillaProfileSaver,
 ) FirstTimeSetupTask {
 	return FirstTimeSetupTask{
-		mainConfigCreator:   mainConfigCreator,
-		steamChecker:        steamChecker,
-		vanillaProfileSaver: vanillaProfileSaver,
+		mainConfigCreator:    mainConfigCreator,
+		gameFilesPathChecker: gameFilesPathChecker,
+		vanillaProfileSaver:  vanillaProfileSaver,
 	}
 }
 
@@ -46,13 +46,13 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 		return viewer.TaskResult{}, err
 	}
 
-	if mainConfig.GameFilePath() != "" {
+	if mainConfig.GameFilesPath() != "" {
 		return viewer.NewTaskResult(viewer.PageMainMenu, nil), nil
 	}
 
 	fmt.Printf("First time? Trying to find your Lethal Company game files...\n")
 
-	gameFilePath, err := task.steamChecker.CheckDefault()
+	gameFilePath, err := task.gameFilesPathChecker.CheckDefaultPath()
 	if err != nil {
 		return viewer.TaskResult{}, err
 	}
@@ -92,7 +92,7 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 		}
 	}
 
-	mainConfig.UpdateGameFilePath(gameFilePath)
+	mainConfig.UpdateGameFilesPath(gameFilePath)
 
 	vanillaProfile, err := profile.NewBlankProfile(profile.ProfileDto{
 		Name: "Vanilla",
@@ -124,7 +124,7 @@ func (task FirstTimeSetupTask) customGameFilePath() (string, error) {
 		var path string
 		fmt.Scanf("%s", &path)
 
-		exists, err := task.steamChecker.Check(path)
+		exists, err := task.gameFilesPathChecker.CheckPath(path)
 		if err != nil {
 			return "", err
 		}

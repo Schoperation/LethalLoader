@@ -1,24 +1,24 @@
 package config
 
 type MainConfigDto struct {
-	GameFilePath    string
+	GameFilesPath   string
 	SelectedProfile string
 }
 
 type MainConfig struct {
-	gameFilePath    string
+	gameFilesPath   string
 	selectedProfile string
 }
 
 func ReformMainConfig(dto MainConfigDto) MainConfig {
 	return MainConfig{
-		gameFilePath:    dto.GameFilePath,
+		gameFilesPath:   dto.GameFilesPath,
 		selectedProfile: dto.SelectedProfile,
 	}
 }
 
-func (config *MainConfig) GameFilePath() string {
-	return config.gameFilePath
+func (config *MainConfig) GameFilesPath() string {
+	return config.gameFilesPath
 }
 
 func (config *MainConfig) SelectedProfile() string {
@@ -27,13 +27,13 @@ func (config *MainConfig) SelectedProfile() string {
 
 func (config *MainConfig) Dto() MainConfigDto {
 	return MainConfigDto{
-		GameFilePath:    config.gameFilePath,
+		GameFilesPath:   config.gameFilesPath,
 		SelectedProfile: config.selectedProfile,
 	}
 }
 
-func (config *MainConfig) UpdateGameFilePath(newPath string) {
-	config.gameFilePath = newPath
+func (config *MainConfig) UpdateGameFilesPath(newPath string) {
+	config.gameFilesPath = newPath
 }
 
 func (config *MainConfig) UpdateSelectedProfile(profileName string) {

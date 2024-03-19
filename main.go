@@ -13,28 +13,29 @@ import (
 )
 
 func main() {
-	steamChecker := file.NewSteamChecker()
 	mainConfigDao := file.NewMainConfigDao()
 	profileDao := file.NewProfileDao()
 	modListDao := file.NewModListDao()
+	gameFilesDao := file.NewGameFilesDao()
 	unzipper := file.NewFileUnzipper()
 
 	modDownloader := rest.NewModDownloader()
 	thunderstoreClient := rest.NewThunderstoreClient()
 
 	mainConfigTranslator := translator_config.NewMainConfigTranslator(mainConfigDao)
-	profileTranslator := translator_profile.NewProfileTranslator(profileDao, modListDao)
+	profileTranslator := translator_profile.NewProfileTranslator(profileDao, modListDao, gameFilesDao)
 	modTranslator := translator_mod.NewModTranslator(modDownloader, unzipper, modListDao)
 	listingTranslator := translator_mod.NewListingTranslator(thunderstoreClient)
 	searchResultTranslator := translator_mod.NewSearchResultTranslator(thunderstoreClient)
 
-	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, steamChecker, profileTranslator)
+	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, gameFilesDao, profileTranslator)
 	newProfileTask := task.NewNewProfileTask(profileTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
 	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)
 	removeModTask := task.NewRemoveModTask(profileTranslator)
 	updateModsTask := task.NewUpdateModsTask(modTranslator, profileTranslator)
+	switchProfileTask := task.NewSwitchProfileTask(mainConfigTranslator, profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
@@ -53,6 +54,7 @@ func main() {
 		addModTask,
 		removeModTask,
 		updateModsTask,
+		switchProfileTask,
 	)
 
 	err := pageViewer.Run()

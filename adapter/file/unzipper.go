@@ -100,8 +100,11 @@ func (fuz FileUnzipper) extractFile(file *zip.File, unzippedFolder string) (mod.
 		return mod.FileDto{}, err
 	}
 
+	dtoPath := strings.TrimPrefix(path, unzippedFolder+string(os.PathSeparator))
+	dtoPath = strings.TrimSuffix(dtoPath, stats.Name())
+
 	return mod.FileDto{
 		Name: stats.Name(),
-		Path: strings.TrimPrefix(path, unzippedFolder+string(os.PathSeparator)),
+		Path: dtoPath,
 	}, nil
 }
