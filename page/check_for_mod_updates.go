@@ -24,13 +24,15 @@ func NewCheckForModUpdatesPage(
 	}
 }
 
-func (page CheckForModUpdatesPage) Do(args any) (viewer.OptionsResult, error) {
+func (page CheckForModUpdatesPage) Show(args any) (viewer.OptionsResult, error) {
 	clear()
 
 	pf, ok := args.(profile.Profile)
 	if !ok {
 		return viewer.OptionsResult{}, fmt.Errorf("could not cast profile")
 	}
+
+	fmt.Print("Checking for updates...\n")
 
 	type outdatedMod struct {
 		Current mod.Mod
@@ -52,6 +54,8 @@ func (page CheckForModUpdatesPage) Do(args any) (viewer.OptionsResult, error) {
 			})
 		}
 	}
+
+	clear()
 
 	fmt.Printf("Updating Mods for Profile %s\n", pf.Name())
 	fmt.Print("---------------------------------------\n\n")

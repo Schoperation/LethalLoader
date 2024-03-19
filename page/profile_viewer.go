@@ -43,6 +43,11 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 }
 
 func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
+	checkForUpdates := viewer.NewOption(viewer.OptionDto{
+		Letter: 'U',
+		Page:   viewer.PageCheckForModUpdates,
+	}, []profile.Profile{pfToView})
+
 	addMod := viewer.NewOption(viewer.OptionDto{
 		Letter: 'A',
 		Task:   viewer.TaskSearchTerm,
@@ -73,6 +78,7 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 
 	return viewer.NewOptions(
 		[]viewer.Option{
+			checkForUpdates,
 			addMod,
 			removeMod,
 			quit,

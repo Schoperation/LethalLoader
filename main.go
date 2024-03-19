@@ -32,23 +32,27 @@ func main() {
 	newProfileTask := task.NewNewProfileTask(profileTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
-	addModToProfileTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)
-	removeModFromProfileTask := task.NewRemoveModTask(profileTranslator)
+	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)
+	removeModTask := task.NewRemoveModTask(profileTranslator)
+	updateModsTask := task.NewUpdateModsTask(modTranslator, profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
 	modSearchResultsPage := page.NewModSearchResultsPage(searchResultTranslator, modTranslator)
+	checkForModUpdatesPage := page.NewCheckForModUpdatesPage(listingTranslator)
 
 	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
 		profileViewerPage,
 		modSearchResultsPage,
+		checkForModUpdatesPage,
 		firstTimeSetupTask,
 		newProfileTask,
 		deleteProfileTask,
 		searchTermTask,
-		addModToProfileTask,
-		removeModFromProfileTask,
+		addModTask,
+		removeModTask,
+		updateModsTask,
 	)
 
 	err := pageViewer.Run()
