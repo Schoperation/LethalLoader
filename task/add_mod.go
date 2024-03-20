@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"schoperation/lethalloader/domain/config"
 	"schoperation/lethalloader/domain/input"
 	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
@@ -18,24 +19,32 @@ type searchedModDownloader interface {
 }
 
 type profileWithNewModSaver interface {
+	Switch(oldPf profile.Profile, newPf profile.Profile, gameFilesPath string) error
 	Save(pf profile.Profile) error
+}
+
+type gameFilesPathGetter interface {
+	Get() (config.MainConfig, error)
 }
 
 type AddModTask struct {
 	modListingGetter searchedModListingGetter
 	modDownloader    searchedModDownloader
 	profileSaver     profileWithNewModSaver
+	configGetter     gameFilesPathGetter
 }
 
 func NewAddModToProfileTask(
 	modListingGetter searchedModListingGetter,
 	modDownloader searchedModDownloader,
 	profileSaver profileWithNewModSaver,
+	configGetter gameFilesPathGetter,
 ) AddModTask {
 	return AddModTask{
 		modListingGetter: modListingGetter,
 		modDownloader:    modDownloader,
 		profileSaver:     profileSaver,
+		configGetter:     configGetter,
 	}
 }
 
@@ -79,6 +88,18 @@ func (task AddModTask) Do(args any) (viewer.TaskResult, error) {
 	err = task.profileSaver.Save(taskInput.Profile)
 	if err != nil {
 		return viewer.TaskResult{}, err
+	}
+
+	mainConfig, err := task.configGetter.Get()
+	if err != nil {
+		return viewer.TaskResult{}, err
+	}
+
+	if mainConfig.SelectedProfile() == taskInput.Profile.Name() {
+		err = task.profileSaver.Switch(taskInput.Profile, taskInput.Profile, mainConfig.GameFilesPath())
+		if err != nil {
+			return viewer.TaskResult{}, err
+		}
 	}
 
 	return viewer.NewTaskResult(viewer.PageProfileViewer, taskInput.Profile), nil

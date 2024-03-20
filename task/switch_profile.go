@@ -38,6 +38,10 @@ func (task SwitchProfileTask) Do(args any) (viewer.TaskResult, error) {
 		return viewer.TaskResult{}, fmt.Errorf("could not cast input")
 	}
 
+	if taskInput.OldProfile.Name() == taskInput.NewProfile.Name() {
+		return viewer.NewTaskResult(viewer.PageMainMenu, nil), nil
+	}
+
 	mainConfig, err := task.configChanger.Get()
 	if err != nil {
 		return viewer.TaskResult{}, err

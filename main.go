@@ -32,8 +32,8 @@ func main() {
 	newProfileTask := task.NewNewProfileTask(profileTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
-	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator)
-	removeModTask := task.NewRemoveModTask(profileTranslator)
+	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator, mainConfigTranslator)
+	removeModTask := task.NewRemoveModTask(profileTranslator, mainConfigTranslator)
 	updateModsTask := task.NewUpdateModsTask(modTranslator, profileTranslator)
 	switchProfileTask := task.NewSwitchProfileTask(mainConfigTranslator, profileTranslator)
 

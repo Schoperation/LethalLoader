@@ -89,10 +89,6 @@ func (translator ProfileTranslator) Delete(pf profile.Profile) error {
 }
 
 func (translator ProfileTranslator) Switch(oldPf profile.Profile, newPf profile.Profile, gameFilesPath string) error {
-	if oldPf.Name() == newPf.Name() {
-		return nil
-	}
-
 	err := translator.gameFilesDao.DeleteFilesByProfile(oldPf.Dto(), gameFilesPath)
 	if err != nil {
 		return err
