@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"schoperation/lethalloader/domain/config"
 	"schoperation/lethalloader/domain/input"
 	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
@@ -18,33 +17,32 @@ type searchedModDownloader interface {
 	GetByModListing(listing mod.Listing) (mod.Mod, error)
 }
 
-type profileWithNewModSaver interface {
-	Switch(oldPf profile.Profile, newPf profile.Profile, gameFilesPath string) error
-	Save(pf profile.Profile) error
+type gameFilesAdder interface {
+	AddMod(mod mod.Mod, pfName string) error
 }
 
-type gameFilesPathGetter interface {
-	Get() (config.MainConfig, error)
+type profileWithNewModSaver interface {
+	Save(pf profile.Profile) error
 }
 
 type AddModTask struct {
 	modListingGetter searchedModListingGetter
 	modDownloader    searchedModDownloader
+	gameFilesAdder   gameFilesAdder
 	profileSaver     profileWithNewModSaver
-	configGetter     gameFilesPathGetter
 }
 
 func NewAddModToProfileTask(
 	modListingGetter searchedModListingGetter,
 	modDownloader searchedModDownloader,
+	gameFilesAdder gameFilesAdder,
 	profileSaver profileWithNewModSaver,
-	configGetter gameFilesPathGetter,
 ) AddModTask {
 	return AddModTask{
 		modListingGetter: modListingGetter,
 		modDownloader:    modDownloader,
+		gameFilesAdder:   gameFilesAdder,
 		profileSaver:     profileSaver,
-		configGetter:     configGetter,
 	}
 }
 
@@ -75,6 +73,10 @@ func (task AddModTask) Do(args any) (viewer.TaskResult, error) {
 	}
 
 	taskInput.Profile.AddMod(newMod)
+	err := task.gameFilesAdder.AddMod(newMod, taskInput.Profile.Name())
+	if err != nil {
+		return viewer.TaskResult{}, err
+	}
 
 	additionalMods, err := task.addDependencies(newMod)
 	if err != nil {
@@ -83,23 +85,15 @@ func (task AddModTask) Do(args any) (viewer.TaskResult, error) {
 
 	for _, addMod := range additionalMods {
 		taskInput.Profile.AddMod(addMod)
+		err := task.gameFilesAdder.AddMod(addMod, taskInput.Profile.Name())
+		if err != nil {
+			return viewer.TaskResult{}, err
+		}
 	}
 
 	err = task.profileSaver.Save(taskInput.Profile)
 	if err != nil {
 		return viewer.TaskResult{}, err
-	}
-
-	mainConfig, err := task.configGetter.Get()
-	if err != nil {
-		return viewer.TaskResult{}, err
-	}
-
-	if mainConfig.SelectedProfile() == taskInput.Profile.Name() {
-		err = task.profileSaver.Switch(taskInput.Profile, taskInput.Profile, mainConfig.GameFilesPath())
-		if err != nil {
-			return viewer.TaskResult{}, err
-		}
 	}
 
 	return viewer.NewTaskResult(viewer.PageProfileViewer, taskInput.Profile), nil

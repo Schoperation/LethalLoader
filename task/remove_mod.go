@@ -2,33 +2,32 @@ package task
 
 import (
 	"fmt"
-	"schoperation/lethalloader/domain/config"
 	"schoperation/lethalloader/domain/input"
+	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
 )
 
 type profileWithRemovedModSaver interface {
-	Switch(oldPf profile.Profile, newPf profile.Profile, gameFilesPath string) error
 	Save(pf profile.Profile) error
 }
 
-type removeModConfigGetter interface {
-	Get() (config.MainConfig, error)
+type gameFilesRemover interface {
+	DeleteMod(mod mod.Mod, pfName string) error
 }
 
 type RemoveModTask struct {
-	profileSaver profileWithRemovedModSaver
-	configGetter removeModConfigGetter
+	profileSaver     profileWithRemovedModSaver
+	gameFilesRemover gameFilesRemover
 }
 
 func NewRemoveModTask(
 	profileSaver profileWithRemovedModSaver,
-	configGetter removeModConfigGetter,
+	gameFilesRemover gameFilesRemover,
 ) RemoveModTask {
 	return RemoveModTask{
-		profileSaver: profileSaver,
-		configGetter: configGetter,
+		profileSaver:     profileSaver,
+		gameFilesRemover: gameFilesRemover,
 	}
 }
 
@@ -42,16 +41,9 @@ func (task RemoveModTask) Do(args any) (viewer.TaskResult, error) {
 
 	taskInput.Profile.RemoveMod(taskInput.Mod)
 
-	mainConfig, err := task.configGetter.Get()
+	err := task.gameFilesRemover.DeleteMod(taskInput.Mod, taskInput.Profile.Name())
 	if err != nil {
 		return viewer.TaskResult{}, err
-	}
-
-	if mainConfig.SelectedProfile() == taskInput.Profile.Name() {
-		err = task.profileSaver.Switch(taskInput.Profile, taskInput.Profile, mainConfig.GameFilesPath())
-		if err != nil {
-			return viewer.TaskResult{}, err
-		}
 	}
 
 	err = task.profileSaver.Save(taskInput.Profile)

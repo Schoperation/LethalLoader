@@ -27,13 +27,14 @@ func main() {
 	modTranslator := translator_mod.NewModTranslator(modDownloader, unzipper, modListDao)
 	listingTranslator := translator_mod.NewListingTranslator(thunderstoreClient)
 	searchResultTranslator := translator_mod.NewSearchResultTranslator(thunderstoreClient)
+	gameFilesTranslator := translator_mod.NewGameFilesTranslator(gameFilesDao, mainConfigDao)
 
 	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, gameFilesDao, profileTranslator)
 	newProfileTask := task.NewNewProfileTask(profileTranslator)
 	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
-	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, profileTranslator, mainConfigTranslator)
-	removeModTask := task.NewRemoveModTask(profileTranslator, mainConfigTranslator)
+	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, gameFilesTranslator, profileTranslator)
+	removeModTask := task.NewRemoveModTask(profileTranslator, gameFilesTranslator)
 	updateModsTask := task.NewUpdateModsTask(modTranslator, profileTranslator)
 	switchProfileTask := task.NewSwitchProfileTask(mainConfigTranslator, profileTranslator)
 
