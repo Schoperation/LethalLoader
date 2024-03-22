@@ -58,13 +58,8 @@ func (fuz FileUnzipper) extractFile(file *zip.File, unzippedFolder string) (mod.
 	names := strings.Split(unzippedFolder, "-")
 	modName := names[1]
 
-	// Remove extraneous modname folders.
-	if file.Name == modName+fuz.sep() {
-		return mod.FileDto{Name: "skip"}, nil
-	}
-
 	newPath := filepath.Join(unzippedFolder, file.Name)
-	newPath = strings.Replace(newPath, modName+fuz.sep(), "", 1)
+	newPath = strings.Replace(newPath, unzippedFolder+fuz.sep()+modName+fuz.sep(), unzippedFolder+fuz.sep(), 1)
 	newPath = fuz.fixPathForDlls(file, newPath, unzippedFolder)
 
 	// Check for ZipSlip.
@@ -139,6 +134,10 @@ func (fuz FileUnzipper) shouldSkipFile(file *zip.File, path, unzippedFolder stri
 //
 // This function corrects the path for said files.
 func (fuz FileUnzipper) fixPathForDlls(file *zip.File, path, unzippedFolder string) string {
+	if file.FileInfo().IsDir() {
+		return path
+	}
+
 	if !fuz.isBasePath(path, file.FileInfo().Name(), unzippedFolder) && strings.Contains(path, "BepInEx") {
 		return path
 	}
@@ -152,8 +151,8 @@ func (fuz FileUnzipper) fixPathForDlls(file *zip.File, path, unzippedFolder stri
 		return path
 	}
 
-	// Missing BepInEx; just add that to the path
-	if !strings.Contains(path, "BepInEx"+fuz.sep()+"plugins") {
+	// Only missing BepInEx; just add that to the path
+	if !strings.Contains(path, "BepInEx"+fuz.sep()+"plugins") && strings.Contains(path, "plugins") {
 		return strings.Replace(path, "plugins", "BepInEx"+fuz.sep()+"plugins", 1)
 	}
 
