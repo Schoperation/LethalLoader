@@ -42,12 +42,14 @@ func main() {
 	profileViewerPage := page.NewProfileViewerPage()
 	modSearchResultsPage := page.NewModSearchResultsPage(searchResultTranslator, modTranslator)
 	checkForModUpdatesPage := page.NewCheckForModUpdatesPage(listingTranslator)
+	aboutPage := page.NewAboutPage()
 
 	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
 		profileViewerPage,
 		modSearchResultsPage,
 		checkForModUpdatesPage,
+		aboutPage,
 		firstTimeSetupTask,
 		newProfileTask,
 		deleteProfileTask,

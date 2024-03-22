@@ -68,6 +68,7 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("N ) New Profile\n")
 	fmt.Print("En) Edit nth Profile\n")
 	fmt.Print("Dn) Delete nth Profile\n")
+	fmt.Print("A ) About & License\n")
 	fmt.Print("Q ) Quit\n")
 	fmt.Print("\n")
 
@@ -107,6 +108,11 @@ func (page MainMenuPage) options(currentProfile profile.Profile, profiles []prof
 		TakesNum: true,
 	}, profiles)
 
+	about := viewer.NewOption(viewer.OptionDto{
+		Letter: 'A',
+		Page:   viewer.PageAbout,
+	}, []string{})
+
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',
 		Task:   viewer.TaskQuit,
@@ -118,6 +124,7 @@ func (page MainMenuPage) options(currentProfile profile.Profile, profiles []prof
 			newProfile,
 			editProfile,
 			deleteProfile,
+			about,
 			quit,
 		},
 	)

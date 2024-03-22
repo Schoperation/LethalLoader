@@ -38,7 +38,7 @@ func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 	}
 
 	fmt.Printf("\n")
-	fmt.Printf("Name?\n")
+	fmt.Printf("Enter in name (Q to cancel):\n")
 
 	newProfileName := ""
 	reader := bufio.NewReader(os.Stdin)
@@ -50,6 +50,7 @@ func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 		}
 
 		newProfileName = strings.TrimSuffix(newProfileName, "\n")
+		newProfileName = strings.TrimSuffix(newProfileName, "\r")
 
 		if strings.TrimSpace(newProfileName) != "" {
 			if _, alreadyExists := existingProfileNames[strings.ToLower(newProfileName)]; !alreadyExists {
@@ -61,6 +62,10 @@ func (task NewProfileTask) Do(args any) (viewer.TaskResult, error) {
 		}
 
 		fmt.Printf("Bruh that ain't a real name...\n")
+	}
+
+	if strings.ToLower(newProfileName) == "q" {
+		return viewer.NewTaskResult(viewer.PageMainMenu, nil), nil
 	}
 
 	newProfile, err := profile.NewBlankProfile(profile.ProfileDto{

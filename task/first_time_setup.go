@@ -74,7 +74,7 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 		for {
 			var weGood string
 			fmt.Print(">")
-			fmt.Scanf("%s", &weGood)
+			fmt.Scanf("%s\n", &weGood)
 
 			if weGood == "" || weGood == "y" {
 				break
@@ -122,7 +122,7 @@ func (task FirstTimeSetupTask) customGameFilePath() (string, error) {
 	gameFilePath := ""
 	for {
 		var path string
-		fmt.Scanf("%s", &path)
+		fmt.Scanf("%s\n", &path)
 
 		exists, err := task.gameFilesPathChecker.CheckPath(path)
 		if err != nil {

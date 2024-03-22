@@ -23,6 +23,7 @@ func NewPageViewer(
 	profileViewerPage cliPage,
 	modSearchResultsPage cliPage,
 	checkForModUpdatesPage cliPage,
+	aboutPage cliPage,
 	firstTimeSetupTask cliTask,
 	newProfileTask cliTask,
 	deleteProfileTask cliTask,
@@ -48,6 +49,7 @@ func NewPageViewer(
 		viewer.PageProfileViewer:      profileViewerPage,
 		viewer.PageModSearchResults:   modSearchResultsPage,
 		viewer.PageCheckForModUpdates: checkForModUpdatesPage,
+		viewer.PageAbout:              aboutPage,
 	}
 
 	return PageViewer{

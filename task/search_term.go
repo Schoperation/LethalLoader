@@ -44,6 +44,7 @@ func (task SearchTermTask) Do(args any) (viewer.TaskResult, error) {
 	}
 
 	term = strings.TrimSuffix(term, "\n")
+	term = strings.TrimSuffix(term, "\r")
 
 	if strings.ToLower(term) == "q" {
 		return viewer.NewTaskResult(viewer.PageProfileViewer, taskInput.Profile), nil

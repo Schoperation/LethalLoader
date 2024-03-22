@@ -7,4 +7,5 @@ const (
 	PageProfileViewer      Page = "profile_viewer"
 	PageModSearchResults   Page = "mod_search_results"
 	PageCheckForModUpdates Page = "check_for_mod_updates"
+	PageAbout              Page = "about"
 )

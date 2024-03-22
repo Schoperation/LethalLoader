@@ -26,7 +26,7 @@ func (ops Options) TakeInput() OptionsResult {
 	for {
 		var choice string
 		fmt.Print(">")
-		fmt.Scanf("%s", &choice)
+		fmt.Scanf("%s\n", &choice)
 
 		option, num, err := ops.parse(choice)
 		if err != nil {
