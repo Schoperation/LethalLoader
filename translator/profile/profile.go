@@ -4,6 +4,7 @@ import (
 	"schoperation/lethalloader/domain/mod"
 	"schoperation/lethalloader/domain/profile"
 	"slices"
+	"strings"
 )
 
 type profileDao interface {
@@ -56,11 +57,14 @@ func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 	}
 
 	slices.SortFunc(profiles, func(a, b profile.Profile) int {
-		if a.Name() < b.Name() {
+		an := strings.ToLower(a.Name())
+		bn := strings.ToLower(b.Name())
+
+		if an < bn {
 			return -1
 		}
 
-		if a.Name() > b.Name() {
+		if an > bn {
 			return 1
 		}
 

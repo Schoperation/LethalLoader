@@ -54,11 +54,14 @@ func (pf *Profile) Mods() []mod.Mod {
 	}
 
 	slices.SortFunc(mods, func(a, b mod.Mod) int {
-		if a.Name() < b.Name() {
+		an := strings.ToLower(a.Name())
+		bn := strings.ToLower(b.Name())
+
+		if an < bn {
 			return -1
 		}
 
-		if a.Name() > b.Name() {
+		if an > bn {
 			return 1
 		}
 

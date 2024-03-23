@@ -1,0 +1,65 @@
+name: Build & Release LL
+
+on:
+  push:
+    branches:
+        - master
+  workflow_dispatch:
+
+jobs:
+  verify-build:
+    name: Verify Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4.1.1
+
+      - name: Set Up Go
+        uses: actions/setup-go@v5.0.0
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build
+        run: go build -n -v ./...
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Vet
+        run: go vet -v ./...
+
+  create-release:
+    name: Create Release
+    needs: verify-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4.1.1
+
+      - name: Set Up Go
+        uses: actions/setup-go@v5.0.0
+        with:
+          go-version-file: "go.mod"
+
+      - name: Build For Windows
+        run: GOOS=windows go build -o lethal_loader_win64 -v ./...
+
+      - name: Build For Linux
+        run: GOOS=linux go build -o lethal_loader_linux64 -v ./...
+
+      - name: Set Version
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+            commit: "master"
+            tag: ${{ env.VERSION }}
+            artifacts: "lethal_loader_win64.exe, lethal_loader_linux64"
+            generateReleaseNotes: false
+            makeLatest: true
+            skipIfReleaseExists: true
