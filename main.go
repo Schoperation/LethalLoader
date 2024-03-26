@@ -53,7 +53,7 @@ func main() {
 	searchTermTask := task.NewSearchTermTask()
 	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, gameFilesTranslator, profileTranslator)
 	removeModTask := task.NewRemoveModTask(profileTranslator, gameFilesTranslator)
-	updateModsTask := task.NewUpdateModsTask(modTranslator, profileTranslator)
+	updateModsTask := task.NewUpdateModsTask(modTranslator, gameFilesTranslator, profileTranslator)
 	switchProfileTask := task.NewSwitchProfileTask(mainConfigTranslator, profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)

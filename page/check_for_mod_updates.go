@@ -73,11 +73,11 @@ func (page CheckForModUpdatesPage) Show(args any) (viewer.OptionsResult, error) 
 	fmt.Print("-----------\n")
 
 	if len(outdatedMods) > 0 {
-		fmt.Print("A) Update All\n")
+		fmt.Print("A ) Update All\n")
 		fmt.Print("Un) Update nth Mod\n")
 	}
 
-	fmt.Printf("Q) Back to Profile %s\n", pf.Name())
+	fmt.Printf("Q ) Back to Profile %s\n", pf.Name())
 	fmt.Print("\n")
 
 	latestListings := make([]mod.Listing, len(outdatedMods))

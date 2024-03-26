@@ -71,6 +71,15 @@ func (pf *Profile) Mods() []mod.Mod {
 	return mods
 }
 
+func (pf *Profile) Mod(name string) (mod.Mod, error) {
+	foundMod, exists := pf.mods[name]
+	if !exists {
+		return mod.Mod{}, fmt.Errorf("could not find mod %s", name)
+	}
+
+	return foundMod, nil
+}
+
 func (pf *Profile) Dto() ProfileDto {
 	modDtos := make([]mod.ModDto, len(pf.mods))
 	slugs := make([]string, len(pf.mods))

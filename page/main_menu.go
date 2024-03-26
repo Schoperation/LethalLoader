@@ -46,7 +46,7 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 
 	currentProfile := profile.Profile{}
 
-	fmt.Print("LethalLoader v0.1.0\n")
+	fmt.Print("LethalLoader v0.1.1\n")
 	fmt.Print("---------------------------------------\n\n")
 
 	fmt.Print("Profiles:\n")
