@@ -21,15 +21,28 @@ func (dao GameFilesDao) slug(name, author, version string) string {
 	return author + "-" + name + "-" + version
 }
 
-func (dao GameFilesDao) CheckDefaultPath() (string, error) {
-	homeDir := os.Getenv("HOME")
-	defaultGameFilePath := homeDir + "/.steam/steam/steamapps/common/Lethal Company"
-
-	if runtime.GOOS == "windows" {
-		defaultGameFilePath = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Lethal Company"
+func (dao GameFilesDao) GetDefaultPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
 	}
 
-	_, err := os.Stat(defaultGameFilePath)
+	path := homeDir + "/.steam/steam/steamapps/common/Lethal Company"
+
+	if runtime.GOOS == "windows" {
+		path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Lethal Company"
+	}
+
+	return path, nil
+}
+
+func (dao GameFilesDao) CheckDefaultPath() (string, error) {
+	defaultGameFilePath, err := dao.GetDefaultPath()
+	if err != nil {
+		return "", err
+	}
+
+	_, err = os.Stat(defaultGameFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return "", nil

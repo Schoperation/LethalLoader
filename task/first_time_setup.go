@@ -1,7 +1,9 @@
 package task
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"schoperation/lethalloader/domain/config"
 	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
@@ -14,6 +16,7 @@ type mainConfigCreator interface {
 }
 
 type gameFilesPathChecker interface {
+	GetDefaultPath() (string, error)
 	CheckDefaultPath() (string, error)
 	CheckPath(path string) (bool, error)
 }
@@ -56,8 +59,6 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 	if err != nil {
 		return viewer.TaskResult{}, err
 	}
-
-	gameFilePath = strings.TrimSpace(gameFilePath)
 
 	if gameFilePath == "" {
 		fmt.Printf("Couldn't find your game files. Would you be so polite to tell us where they are?\n")
@@ -117,25 +118,35 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 }
 
 func (task FirstTimeSetupTask) customGameFilePath() (string, error) {
-	fmt.Printf("Type the full path (C:\\Program Files (x86)\\whatever)\n")
+	defaultPath, err := task.gameFilesPathChecker.GetDefaultPath()
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Printf("Type the full path. E.g. %s\n", defaultPath)
 
 	gameFilePath := ""
+	reader := bufio.NewReader(os.Stdin)
 	for {
-		var path string
-		fmt.Scanf("%s\n", &path)
+		gameFilePath, err = reader.ReadString('\n')
+		if err != nil {
+			fmt.Printf("The hell was that?\n")
+			continue
+		}
 
-		exists, err := task.gameFilesPathChecker.CheckPath(path)
+		gameFilePath = strings.TrimSuffix(gameFilePath, "\n")
+		gameFilePath = strings.TrimSuffix(gameFilePath, "\r")
+		gameFilePath = strings.TrimSpace(gameFilePath)
+
+		exists, err := task.gameFilesPathChecker.CheckPath(gameFilePath)
 		if err != nil {
 			return "", err
 		}
 
 		if exists {
-			gameFilePath = path
-			break
+			return gameFilePath, nil
 		}
 
 		fmt.Printf("Bruh that don't exist\n")
 	}
-
-	return gameFilePath, nil
 }
