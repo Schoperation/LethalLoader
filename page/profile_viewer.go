@@ -22,11 +22,41 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 		return viewer.OptionsResult{}, fmt.Errorf("could not cast profile")
 	}
 
-	fmt.Printf("Profile %s\n", pfToView.Name())
+	longestNameChars := 0
+	longestAuthorChars := 0
+	for _, mod := range pfToView.Mods() {
+		if len(mod.Name()) > longestNameChars {
+			longestNameChars = len(mod.Name())
+		}
+
+		if len(mod.Author()) > longestAuthorChars {
+			longestAuthorChars = len(mod.Author())
+		}
+	}
+
+	if longestNameChars > 5 {
+		longestNameChars = 5
+	}
+
+	if longestAuthorChars > 5 {
+		longestAuthorChars = 5
+	}
+
+	fmt.Printf("Profile %s ~ %d Mods\n", pfToView.Name(), pfToView.NumberOfMods())
 	fmt.Print("---------------------------------------\n\n")
 
 	for i, mod := range pfToView.Mods() {
-		fmt.Printf("\t%02d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), mod.Description())
+		modName := mod.Name()
+		if len(modName) > longestNameChars {
+			modName = modName[:longestNameChars-3] + "..."
+		}
+
+		modAuthor := mod.Author()
+		if len(modAuthor) > longestAuthorChars {
+			modAuthor = modAuthor[:longestAuthorChars-3] + "..."
+		}
+
+		fmt.Printf("\t%02d ~ %s ~ v%-8.8s ~ by %s\n", i+1, modName, mod.Version(), modAuthor)
 	}
 
 	fmt.Print("\n")

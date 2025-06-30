@@ -80,6 +80,10 @@ func (pf *Profile) Mod(name string) (mod.Mod, error) {
 	return foundMod, nil
 }
 
+func (pf *Profile) NumberOfMods() int {
+	return len(pf.mods)
+}
+
 func (pf *Profile) Dto() ProfileDto {
 	modDtos := make([]mod.ModDto, len(pf.mods))
 	slugs := make([]string, len(pf.mods))
