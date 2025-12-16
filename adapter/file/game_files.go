@@ -106,6 +106,18 @@ func (dao GameFilesDao) DeleteFilesByMod(mod mod.ModDto, gameFilesPath string) e
 		if err != nil {
 			return err
 		}
+
+		entries, err := os.ReadDir(filepath.Dir(path))
+		if err != nil {
+			return err
+		}
+
+		if len(entries) == 0 {
+			err := os.Remove(filepath.Dir(path))
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

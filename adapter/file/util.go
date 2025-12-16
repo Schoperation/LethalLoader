@@ -35,6 +35,10 @@ func read[M Model](fileName string) (map[string]M, error) {
 	return models, nil
 }
 
+func readAllInDir[M Model](dirName string) (map[string]M, error) {
+	return nil, nil
+}
+
 func write[M Model](fileName string, models map[string]M) error {
 	bytes, err := json.MarshalIndent(models, "", "    ")
 	if err != nil {
