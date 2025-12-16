@@ -13,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v6.0.1
 
       - name: Set Up Go
-        uses: actions/setup-go@v5.0.0
+        uses: actions/setup-go@v6.1.0
         with:
           go-version-file: "go.mod"
 
@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v6.0.1
 
       - name: Set Up Go
-        uses: actions/setup-go@v5.0.0
+        uses: actions/setup-go@v6.1.0
         with:
           go-version-file: "go.mod"
 
@@ -55,7 +55,7 @@ jobs:
         run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
       - name: Create Release
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.20.0
         with:
             commit: "master"
             tag: ${{ env.VERSION }}
