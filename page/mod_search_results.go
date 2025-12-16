@@ -77,12 +77,33 @@ func (page ModSearchResultsPage) Show(args any) (viewer.OptionsResult, error) {
 func (page ModSearchResultsPage) showCachedResults(pageInput input.ModSearchResultsPageInput, mods []mod.Mod) viewer.Options {
 	clear()
 
+	const characterLimit = 20
+	longestNameChars := 0
+	longestAuthorChars := 0
+	for _, mod := range mods {
+		if len(mod.Name()) > longestNameChars {
+			longestNameChars = len(mod.Name())
+		}
+
+		if len(mod.Author()) > longestAuthorChars {
+			longestAuthorChars = len(mod.Author())
+		}
+	}
+
+	if longestNameChars > characterLimit {
+		longestNameChars = characterLimit
+	}
+
+	if longestAuthorChars > characterLimit {
+		longestAuthorChars = characterLimit
+	}
+
 	fmt.Printf("Adding Mod to %s\n", pageInput.Profile.Name())
 	fmt.Print("---------------------------------------\n\n")
 
 	fmt.Printf("Cached Search Results for: %s\n\n", pageInput.Term)
 	for i, mod := range mods {
-		fmt.Printf("\t%02d ~ %s ~ v%s ~ by %s ~ %s\n", i+1, mod.Name(), mod.Version(), mod.Author(), page.trimString(mod.Description()))
+		fmt.Printf("\t%02d ~ %s ~ %s\n", i+1, mod.PrettyPrint(longestNameChars, longestAuthorChars), page.trimString(mod.Description()))
 	}
 
 	fmt.Print("\n")
@@ -146,12 +167,33 @@ func (page ModSearchResultsPage) cachedResultsOptions(pageInput input.ModSearchR
 func (page ModSearchResultsPage) showSearchResults(pageInput input.ModSearchResultsPageInput, results []mod.SearchResult) viewer.Options {
 	clear()
 
+	const characterLimit = 20
+	longestNameChars := 0
+	longestAuthorChars := 0
+	for _, mod := range results {
+		if len(mod.Name()) > longestNameChars {
+			longestNameChars = len(mod.Name())
+		}
+
+		if len(mod.Author()) > longestAuthorChars {
+			longestAuthorChars = len(mod.Author())
+		}
+	}
+
+	if longestNameChars > characterLimit {
+		longestNameChars = characterLimit
+	}
+
+	if longestAuthorChars > characterLimit {
+		longestAuthorChars = characterLimit
+	}
+
 	fmt.Printf("Adding Mod to %s\n", pageInput.Profile.Name())
 	fmt.Print("---------------------------------------\n\n")
 
 	fmt.Printf("Thunderstore Search Results for: %s\n\n", pageInput.Term)
 	for i, result := range results {
-		fmt.Printf("\t%02d ~ %s ~ by %s ~ %s\n", i+1, result.Name(), result.Author(), page.trimString(result.Description()))
+		fmt.Printf("\t%02d ~ %s ~ %s\n", i+1, result.PrettyPrint(longestNameChars, longestAuthorChars), page.trimString(result.Description()))
 	}
 
 	fmt.Print("\n")
@@ -211,7 +253,7 @@ func (page ModSearchResultsPage) termHasSpaces(term string) string {
 }
 
 func (page ModSearchResultsPage) trimString(s string) string {
-	cutoff := 120
+	cutoff := 100
 
 	if len(s) < cutoff {
 		return s

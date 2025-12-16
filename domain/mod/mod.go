@@ -153,3 +153,25 @@ func (mod Mod) Dto() ModDto {
 		Dependencies: depStrings,
 	}
 }
+
+func (mod Mod) PrettyPrint(nameLimit, authorLimit int) string {
+	modName := mod.Name()
+	if len(modName) > nameLimit {
+		modName = modName[:nameLimit-3] + "..."
+	} else {
+		for range nameLimit - len(modName) {
+			modName += " "
+		}
+	}
+
+	modAuthor := mod.Author()
+	if len(modAuthor) > authorLimit {
+		modAuthor = modAuthor[:authorLimit-3] + "..."
+	} else {
+		for range authorLimit - len(modAuthor) {
+			modAuthor += " "
+		}
+	}
+
+	return fmt.Sprintf("%s ~ v%-8.8s ~ by %s", modName, mod.Version(), modAuthor)
+}
