@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type mainConfigCreator interface {
+type mainConfigEditor interface {
 	Get() (config.MainConfig, error)
 	Save(mainConfig config.MainConfig) error
 }
@@ -26,13 +26,13 @@ type vanillaProfileSaver interface {
 }
 
 type FirstTimeSetupTask struct {
-	mainConfigCreator    mainConfigCreator
+	mainConfigCreator    mainConfigEditor
 	gameFilesPathChecker gameFilesPathChecker
 	vanillaProfileSaver  vanillaProfileSaver
 }
 
 func NewFirstTimeSetupTask(
-	mainConfigCreator mainConfigCreator,
+	mainConfigCreator mainConfigEditor,
 	gameFilesPathChecker gameFilesPathChecker,
 	vanillaProfileSaver vanillaProfileSaver,
 ) FirstTimeSetupTask {
@@ -44,15 +44,6 @@ func NewFirstTimeSetupTask(
 }
 
 func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
-	mainConfig, err := task.mainConfigCreator.Get()
-	if err != nil {
-		return viewer.TaskResult{}, err
-	}
-
-	if mainConfig.GameFilesPath() != "" {
-		return viewer.NewTaskResult(viewer.PageMainMenu, nil), nil
-	}
-
 	fmt.Printf("First time? Trying to find your Lethal Company game files...\n")
 
 	gameFilePath, err := task.gameFilesPathChecker.CheckDefaultPath()
@@ -77,6 +68,8 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 			fmt.Print(">")
 			fmt.Scanf("%s\n", &weGood)
 
+			weGood = strings.ToLower(weGood)
+
 			if weGood == "" || weGood == "y" {
 				break
 			}
@@ -91,6 +84,11 @@ func (task FirstTimeSetupTask) Do(args any) (viewer.TaskResult, error) {
 
 			fmt.Printf("Bruh what you saying\n")
 		}
+	}
+
+	mainConfig, err := task.mainConfigCreator.Get()
+	if err != nil {
+		return viewer.TaskResult{}, err
 	}
 
 	mainConfig.UpdateGameFilesPath(gameFilePath)

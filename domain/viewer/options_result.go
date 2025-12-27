@@ -25,6 +25,18 @@ func NewOptionsResult(option Option, num int) (OptionsResult, error) {
 	}, nil
 }
 
+func NewJumpToPageOptionsResult(page Page) OptionsResult {
+	return OptionsResult{
+		nextPage: page,
+	}
+}
+
+func NewJumpToTaskOptionsResult(task Task) OptionsResult {
+	return OptionsResult{
+		nextTask: task,
+	}
+}
+
 func (result OptionsResult) HasNextTask() bool {
 	return result.nextTask != ""
 }

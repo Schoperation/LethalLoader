@@ -56,6 +56,7 @@ func (page ProfileViewerPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("U) Check for Mod Updates\n")
 	fmt.Print("A) Add Mod\n")
 	fmt.Print("R) Remove Mod\n")
+	fmt.Print("X) Export Profile\n")
 	fmt.Print("Q) Back to Main Menu\n")
 	fmt.Print("\n")
 
@@ -92,6 +93,11 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 		TakesNum: true,
 	}, removeModArgs)
 
+	exportProfile := viewer.NewOption(viewer.OptionDto{
+		Letter: 'X',
+		Task:   viewer.TaskRemoveMod,
+	}, []string{})
+
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',
 		Page:   viewer.PageMainMenu,
@@ -102,6 +108,7 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 			checkForUpdates,
 			addMod,
 			removeMod,
+			exportProfile,
 			quit,
 		},
 	)

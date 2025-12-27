@@ -46,7 +46,7 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 
 	currentProfile := profile.Profile{}
 
-	fmt.Print("LethalLoader v0.1.3\n")
+	fmt.Print("LethalLoader v0.2.0\n")
 	fmt.Print("---------------------------------------\n\n")
 
 	fmt.Print("Profiles:\n")
@@ -66,6 +66,7 @@ func (page MainMenuPage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("-----------\n")
 	fmt.Print("Sn) Switch to nth Profile\n")
 	fmt.Print("N ) New Profile\n")
+	fmt.Print("I ) Import Profile\n")
 	fmt.Print("En) Edit nth Profile\n")
 	fmt.Print("Dn) Delete nth Profile\n")
 	fmt.Print("A ) About & License\n")
@@ -96,6 +97,11 @@ func (page MainMenuPage) options(currentProfile profile.Profile, profiles []prof
 		Task:   viewer.TaskNewProfile,
 	}, []string{})
 
+	importProfile := viewer.NewOption(viewer.OptionDto{
+		Letter: 'I',
+		Page:   viewer.PageImportProfile,
+	}, []string{})
+
 	editProfile := viewer.NewOption(viewer.OptionDto{
 		Letter:   'E',
 		Page:     viewer.PageProfileViewer,
@@ -122,6 +128,7 @@ func (page MainMenuPage) options(currentProfile profile.Profile, profiles []prof
 		[]viewer.Option{
 			switchProfile,
 			newProfile,
+			importProfile,
 			editProfile,
 			deleteProfile,
 			about,

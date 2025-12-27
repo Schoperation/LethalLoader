@@ -2,7 +2,7 @@ package main
 
 /*
    LethalLoader
-   Copyright (C) 2024 Schoperation
+   Copyright (C) 2024-25 Schoperation
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -61,6 +61,7 @@ func main() {
 	modSearchResultsPage := page.NewModSearchResultsPage(searchResultTranslator, modTranslator)
 	checkForModUpdatesPage := page.NewCheckForModUpdatesPage(listingTranslator)
 	aboutPage := page.NewAboutPage()
+	startupPage := page.NewStartupPage(mainConfigTranslator)
 
 	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
@@ -68,6 +69,7 @@ func main() {
 		modSearchResultsPage,
 		checkForModUpdatesPage,
 		aboutPage,
+		startupPage,
 		firstTimeSetupTask,
 		newProfileTask,
 		deleteProfileTask,

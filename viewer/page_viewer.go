@@ -24,6 +24,7 @@ func NewPageViewer(
 	modSearchResultsPage cliPage,
 	checkForModUpdatesPage cliPage,
 	aboutPage cliPage,
+	startupPage cliPage,
 	firstTimeSetupTask cliTask,
 	newProfileTask cliTask,
 	deleteProfileTask cliTask,
@@ -50,6 +51,7 @@ func NewPageViewer(
 		viewer.PageModSearchResults:   modSearchResultsPage,
 		viewer.PageCheckForModUpdates: checkForModUpdatesPage,
 		viewer.PageAbout:              aboutPage,
+		viewer.PageStartup:            startupPage,
 	}
 
 	return PageViewer{
@@ -59,8 +61,8 @@ func NewPageViewer(
 }
 
 func (view PageViewer) Run() error {
-	currentTask := viewer.TaskFirstTimeSetup
-	var currentPage viewer.Page
+	var currentTask viewer.Task
+	currentPage := viewer.PageStartup
 	var args any
 	var err error
 
