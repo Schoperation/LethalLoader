@@ -12,6 +12,7 @@ func NewProfileDao() ProfileDao {
 }
 
 const profilesFileName = "profiles.json"
+const profilesDirectory = "profiles"
 
 type profileModel struct {
 	Name string   `json:"name"`
@@ -46,6 +47,22 @@ func (dao ProfileDao) GetAll() ([]profile.ProfileDto, error) {
 	return dtos, nil
 }
 
+func (dao ProfileDao) GetAllSeparate() ([]profile.ProfileDto, error) {
+	models, err := readAllInDir[profileModel](profilesDirectory)
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]profile.ProfileDto, len(models))
+	i := 0
+	for _, model := range models {
+		dtos[i] = model.dto()
+		i++
+	}
+
+	return dtos, nil
+}
+
 func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 	model := profileModel{
 		Name: dto.Name,
@@ -65,6 +82,20 @@ func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 	}
 
 	return nil
+}
+
+func (dao ProfileDao) SaveSeparately(dto profile.ProfileDto) (string, error) {
+	model := profileModel{
+		Name: dto.Name,
+		Mods: dto.ModSlugs,
+	}
+
+	err := write("profiles/pf_"+model.key()+".json", map[string]profileModel{model.key(): model})
+	if err != nil {
+		return "", err
+	}
+
+	return "profiles/pf_" + model.key() + ".json", nil
 }
 
 func (dao ProfileDao) Delete(dto profile.ProfileDto) error {

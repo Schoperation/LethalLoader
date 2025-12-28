@@ -55,6 +55,7 @@ func main() {
 	removeModTask := task.NewRemoveModTask(profileTranslator, gameFilesTranslator)
 	updateModsTask := task.NewUpdateModsTask(modTranslator, gameFilesTranslator, profileTranslator)
 	switchProfileTask := task.NewSwitchProfileTask(mainConfigTranslator, profileTranslator)
+	exportProfileTask := task.NewExportProfileTask(profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
@@ -62,6 +63,7 @@ func main() {
 	checkForModUpdatesPage := page.NewCheckForModUpdatesPage(listingTranslator)
 	aboutPage := page.NewAboutPage()
 	startupPage := page.NewStartupPage(mainConfigTranslator)
+	importProfilePage := page.NewImportProfilePage()
 
 	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
@@ -70,6 +72,7 @@ func main() {
 		checkForModUpdatesPage,
 		aboutPage,
 		startupPage,
+		importProfilePage,
 		firstTimeSetupTask,
 		newProfileTask,
 		deleteProfileTask,
@@ -78,6 +81,7 @@ func main() {
 		removeModTask,
 		updateModsTask,
 		switchProfileTask,
+		exportProfileTask,
 	)
 
 	err := pageViewer.Run()

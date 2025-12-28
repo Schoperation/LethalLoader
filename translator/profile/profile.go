@@ -9,7 +9,9 @@ import (
 
 type profileDao interface {
 	GetAll() ([]profile.ProfileDto, error)
+	GetAllSeparate() ([]profile.ProfileDto, error)
 	Save(dto profile.ProfileDto) error
+	SaveSeparately(dto profile.ProfileDto) (string, error)
 	Delete(dto profile.ProfileDto) error
 }
 
@@ -74,6 +76,40 @@ func (translator ProfileTranslator) GetAll() ([]profile.Profile, error) {
 	return profiles, nil
 }
 
+func (translator ProfileTranslator) GetAllSeparate() ([]profile.Profile, error) {
+	profileDtos, err := translator.profileDao.GetAllSeparate()
+	if err != nil {
+		return nil, err
+	}
+
+	profiles := make([]profile.Profile, len(profileDtos))
+	for i, dto := range profileDtos {
+		dto.Mods, err = translator.modListDao.GetAllBySlugs(dto.ModSlugs)
+		if err != nil {
+			return nil, err
+		}
+
+		profiles[i] = profile.ReformProfile(dto)
+	}
+
+	slices.SortFunc(profiles, func(a, b profile.Profile) int {
+		an := strings.ToLower(a.Name())
+		bn := strings.ToLower(b.Name())
+
+		if an < bn {
+			return -1
+		}
+
+		if an > bn {
+			return 1
+		}
+
+		return 0
+	})
+
+	return profiles, nil
+}
+
 func (translator ProfileTranslator) Save(pf profile.Profile) error {
 	err := translator.profileDao.Save(pf.Dto())
 	if err != nil {
@@ -81,6 +117,15 @@ func (translator ProfileTranslator) Save(pf profile.Profile) error {
 	}
 
 	return nil
+}
+
+func (translator ProfileTranslator) Export(pf profile.Profile) (string, error) {
+	fileName, err := translator.profileDao.SaveSeparately(pf.Dto())
+	if err != nil {
+		return "", err
+	}
+
+	return fileName, nil
 }
 
 func (translator ProfileTranslator) Delete(pf profile.Profile) error {

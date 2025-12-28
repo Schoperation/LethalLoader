@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type Model interface {
@@ -36,7 +38,26 @@ func read[M Model](fileName string) (map[string]M, error) {
 }
 
 func readAllInDir[M Model](dirName string) (map[string]M, error) {
-	return nil, nil
+	entries, err := os.ReadDir(dirName)
+	if err != nil {
+		return nil, err
+	}
+
+	models := make(map[string]M)
+	for _, entry := range entries {
+		if !entry.Type().IsRegular() {
+			continue
+		}
+
+		fileModels, err := read[M](entry.Name())
+		if err != nil {
+			return nil, err
+		}
+
+		models = mergeMaps(models, fileModels)
+	}
+
+	return models, nil
 }
 
 func write[M Model](fileName string, models map[string]M) error {
@@ -45,7 +66,20 @@ func write[M Model](fileName string, models map[string]M) error {
 		return err
 	}
 
-	file, err := os.Create(fileName)
+	dir, name := filepath.Split(fileName)
+	if strings.TrimSpace(dir) != "" {
+		dir, err = filepath.Abs(dir)
+		if err != nil {
+			return err
+		}
+
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	file, err := os.Create(filepath.Join(dir, name))
 	if err != nil {
 		return err
 	}
@@ -57,4 +91,23 @@ func write[M Model](fileName string, models map[string]M) error {
 	}
 
 	return nil
+}
+
+func mergeMaps[K comparable, V any](maps ...map[K]V) map[K]V {
+	if len(maps) == 0 {
+		return nil
+	}
+
+	if len(maps) == 1 {
+		return maps[0]
+	}
+
+	combined := make(map[K]V)
+	for _, treasureMap := range maps {
+		for key, value := range treasureMap {
+			combined[key] = value
+		}
+	}
+
+	return combined
 }

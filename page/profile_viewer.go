@@ -95,8 +95,8 @@ func (page ProfileViewerPage) options(pfToView profile.Profile) viewer.Options {
 
 	exportProfile := viewer.NewOption(viewer.OptionDto{
 		Letter: 'X',
-		Task:   viewer.TaskRemoveMod,
-	}, []string{})
+		Task:   viewer.TaskExportProfile,
+	}, []profile.Profile{pfToView})
 
 	quit := viewer.NewOption(viewer.OptionDto{
 		Letter: 'Q',
