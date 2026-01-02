@@ -102,6 +102,21 @@ func (pf *Profile) Dto() ProfileDto {
 	}
 }
 
+func (pf *Profile) ExportedDto() ExportedProfileDto {
+	slugs := make([]string, len(pf.mods))
+	i := 0
+	for _, modd := range pf.mods {
+		slug := mod.ReformSlug(modd.Name(), modd.Author(), modd.Version())
+		slugs[i] = slug.String()
+		i++
+	}
+
+	return ExportedProfileDto{
+		Name:     pf.name,
+		ModSlugs: nil,
+	}
+}
+
 func (pf *Profile) AddMod(newMod mod.Mod) {
 	if _, exists := pf.mods[newMod.Name()]; exists {
 		return

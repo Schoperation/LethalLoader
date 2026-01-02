@@ -26,6 +26,13 @@ func (model profileModel) dto() profile.ProfileDto {
 	}
 }
 
+func (model profileModel) exportedDto() profile.ExportedProfileDto {
+	return profile.ExportedProfileDto{
+		Name:     model.Name,
+		ModSlugs: model.Mods,
+	}
+}
+
 func (model profileModel) key() string {
 	lowered := strings.ToLower(model.Name)
 	return strings.ReplaceAll(lowered, " ", "_")
@@ -47,16 +54,16 @@ func (dao ProfileDao) GetAll() ([]profile.ProfileDto, error) {
 	return dtos, nil
 }
 
-func (dao ProfileDao) GetAllSeparate() ([]profile.ProfileDto, error) {
+func (dao ProfileDao) GetAllSeparate() ([]profile.ExportedProfileDto, error) {
 	models, err := readAllInDir[profileModel](profilesDirectory)
 	if err != nil {
 		return nil, err
 	}
 
-	dtos := make([]profile.ProfileDto, len(models))
+	dtos := make([]profile.ExportedProfileDto, len(models))
 	i := 0
 	for _, model := range models {
-		dtos[i] = model.dto()
+		dtos[i] = model.exportedDto()
 		i++
 	}
 
@@ -84,7 +91,7 @@ func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 	return nil
 }
 
-func (dao ProfileDao) SaveSeparately(dto profile.ProfileDto) (string, error) {
+func (dao ProfileDao) SaveSeparately(dto profile.ExportedProfileDto) (string, error) {
 	model := profileModel{
 		Name: dto.Name,
 		Mods: dto.ModSlugs,
