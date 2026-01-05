@@ -12,7 +12,6 @@ func NewProfileDao() ProfileDao {
 }
 
 const profilesFileName = "profiles.json"
-const profilesDirectory = "profiles"
 
 type profileModel struct {
 	Name string   `json:"name"`
@@ -21,13 +20,6 @@ type profileModel struct {
 
 func (model profileModel) dto() profile.ProfileDto {
 	return profile.ProfileDto{
-		Name:     model.Name,
-		ModSlugs: model.Mods,
-	}
-}
-
-func (model profileModel) exportedDto() profile.ExportedProfileDto {
-	return profile.ExportedProfileDto{
 		Name:     model.Name,
 		ModSlugs: model.Mods,
 	}
@@ -54,22 +46,6 @@ func (dao ProfileDao) GetAll() ([]profile.ProfileDto, error) {
 	return dtos, nil
 }
 
-func (dao ProfileDao) GetAllSeparate() ([]profile.ExportedProfileDto, error) {
-	models, err := readAllInDir[profileModel](profilesDirectory)
-	if err != nil {
-		return nil, err
-	}
-
-	dtos := make([]profile.ExportedProfileDto, len(models))
-	i := 0
-	for _, model := range models {
-		dtos[i] = model.exportedDto()
-		i++
-	}
-
-	return dtos, nil
-}
-
 func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 	model := profileModel{
 		Name: dto.Name,
@@ -89,20 +65,6 @@ func (dao ProfileDao) Save(dto profile.ProfileDto) error {
 	}
 
 	return nil
-}
-
-func (dao ProfileDao) SaveSeparately(dto profile.ExportedProfileDto) (string, error) {
-	model := profileModel{
-		Name: dto.Name,
-		Mods: dto.ModSlugs,
-	}
-
-	err := write("profiles/pf_"+model.key()+".json", map[string]profileModel{model.key(): model})
-	if err != nil {
-		return "", err
-	}
-
-	return "profiles/pf_" + model.key() + ".json", nil
 }
 
 func (dao ProfileDao) Delete(dto profile.ProfileDto) error {

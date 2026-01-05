@@ -9,7 +9,7 @@ import (
 )
 
 type Model interface {
-	profileModel | modModel
+	profileModel | exportedProfileModel | modModel
 }
 
 func read[M Model](fileName string) (map[string]M, error) {

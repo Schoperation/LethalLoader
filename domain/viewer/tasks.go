@@ -9,6 +9,7 @@ const (
 	TaskSwitchProfile  Task = "switch_profile"
 	TaskDeleteProfile  Task = "delete_profile"
 	TaskExportProfile  Task = "export_profile"
+	TaskImportProfile  Task = "import_profile"
 	TaskSearchTerm     Task = "search_term"
 	TaskAddMod         Task = "add_mod"
 	TaskRemoveMod      Task = "remove_mod"

@@ -33,6 +33,7 @@ import (
 func main() {
 	mainConfigDao := file.NewMainConfigDao()
 	profileDao := file.NewProfileDao()
+	exportedProfileDao := file.NewExportedDao()
 	modListDao := file.NewModListDao()
 	gameFilesDao := file.NewGameFilesDao()
 	unzipper := file.NewFileUnzipper()
@@ -42,6 +43,7 @@ func main() {
 
 	mainConfigTranslator := translator_config.NewMainConfigTranslator(mainConfigDao)
 	profileTranslator := translator_profile.NewProfileTranslator(profileDao, modListDao, gameFilesDao)
+	exportedProfileTranslator := translator_profile.NewExportedProfileTranslator(exportedProfileDao)
 	modTranslator := translator_mod.NewModTranslator(modDownloader, unzipper, modListDao)
 	listingTranslator := translator_mod.NewListingTranslator(thunderstoreClient)
 	searchResultTranslator := translator_mod.NewSearchResultTranslator(thunderstoreClient)
@@ -55,7 +57,8 @@ func main() {
 	removeModTask := task.NewRemoveModTask(profileTranslator, gameFilesTranslator)
 	updateModsTask := task.NewUpdateModsTask(modTranslator, gameFilesTranslator, profileTranslator)
 	switchProfileTask := task.NewSwitchProfileTask(mainConfigTranslator, profileTranslator)
-	exportProfileTask := task.NewExportProfileTask(profileTranslator)
+	exportProfileTask := task.NewExportProfileTask(exportedProfileTranslator)
+	importProfileTask := task.NewImportProfileTask(listingTranslator, modTranslator, profileTranslator)
 
 	mainMenuPage := page.NewMainMenuPage(mainConfigTranslator, profileTranslator)
 	profileViewerPage := page.NewProfileViewerPage()
@@ -63,7 +66,7 @@ func main() {
 	checkForModUpdatesPage := page.NewCheckForModUpdatesPage(listingTranslator)
 	aboutPage := page.NewAboutPage()
 	startupPage := page.NewStartupPage(mainConfigTranslator)
-	importProfilePage := page.NewImportProfilePage()
+	importProfilePage := page.NewImportProfilePage(exportedProfileTranslator)
 
 	pageViewer := viewer.NewPageViewer(
 		mainMenuPage,
@@ -82,6 +85,7 @@ func main() {
 		updateModsTask,
 		switchProfileTask,
 		exportProfileTask,
+		importProfileTask,
 	)
 
 	err := pageViewer.Run()

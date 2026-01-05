@@ -2,18 +2,40 @@ package page
 
 import (
 	"fmt"
+	"schoperation/lethalloader/domain/profile"
 	"schoperation/lethalloader/domain/viewer"
 )
 
-type ImportProfilePage struct {
+type profileImporter interface {
+	GetAll() ([]profile.ExportedProfile, error)
 }
 
-func NewImportProfilePage() ImportProfilePage {
-	return ImportProfilePage{}
+type ImportProfilePage struct {
+	profileImporter profileImporter
+}
+
+func NewImportProfilePage(
+	profileImporter profileImporter,
+) ImportProfilePage {
+	return ImportProfilePage{
+		profileImporter: profileImporter,
+	}
 }
 
 func (page ImportProfilePage) Show(args any) (viewer.OptionsResult, error) {
 	clear()
+
+	fmt.Print("Import Profile\n")
+	fmt.Print("---------------------------------------\n\n")
+
+	profiles, err := page.profileImporter.GetAll()
+	if err != nil {
+		return viewer.OptionsResult{}, err
+	}
+
+	for i, pf := range profiles {
+		fmt.Printf("\t%02d ~ %s\n", i+1, pf.Name())
+	}
 
 	fmt.Print("\n")
 	fmt.Print("What to Do?\n")
@@ -23,16 +45,16 @@ func (page ImportProfilePage) Show(args any) (viewer.OptionsResult, error) {
 	fmt.Print("Q ) Back to Main Menu\n")
 	fmt.Print("\n")
 
-	options := page.options()
+	options := page.options(profiles)
 	return options.TakeInput(), nil
 }
 
-func (page ImportProfilePage) options() viewer.Options {
+func (page ImportProfilePage) options(profiles []profile.ExportedProfile) viewer.Options {
 	importProfile := viewer.NewOption(viewer.OptionDto{
 		Letter:   'I',
-		Task:     viewer.TaskAddMod,
+		Task:     viewer.TaskImportProfile,
 		TakesNum: true,
-	}, []string{})
+	}, profiles)
 
 	refreshFiles := viewer.NewOption(viewer.OptionDto{
 		Letter: 'R',

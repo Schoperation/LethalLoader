@@ -113,7 +113,7 @@ func (pf *Profile) ExportedDto() ExportedProfileDto {
 
 	return ExportedProfileDto{
 		Name:     pf.name,
-		ModSlugs: nil,
+		ModSlugs: slugs,
 	}
 }
 
