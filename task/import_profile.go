@@ -54,7 +54,7 @@ func (task ImportProfileTask) Do(args any) (viewer.TaskResult, error) {
 	}
 
 	for _, slug := range pfToImport.ModSlugs() {
-		fmt.Printf("\tDownloading %s v%s... ", slug.Name(), slug.Version())
+		fmt.Printf("\tDownloading %s v%s...\n", slug.Name(), slug.Version())
 
 		listing, err := task.listingGetter.GetBySlug(slug)
 		if err != nil {

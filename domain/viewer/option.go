@@ -60,6 +60,10 @@ func (op Option) Arg(i int) (any, error) {
 		return op.possibleArgs[0], nil
 	}
 
+	if len(op.possibleArgs) == 0 {
+		return nil, fmt.Errorf("no available arg choices")
+	}
+
 	if i > len(op.possibleArgs) || i <= 0 {
 		return nil, fmt.Errorf("arg choice must be between 1 and %d", len(op.possibleArgs))
 	}

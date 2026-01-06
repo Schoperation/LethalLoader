@@ -49,7 +49,7 @@ func readAllInDir[M Model](dirName string) (map[string]M, error) {
 			continue
 		}
 
-		fileModels, err := read[M](entry.Name())
+		fileModels, err := read[M](filepath.Join(dirName, entry.Name()))
 		if err != nil {
 			return nil, err
 		}

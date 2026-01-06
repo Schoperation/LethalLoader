@@ -34,7 +34,11 @@ func (page ImportProfilePage) Show(args any) (viewer.OptionsResult, error) {
 	}
 
 	for i, pf := range profiles {
-		fmt.Printf("\t%02d ~ %s\n", i+1, pf.Name())
+		fmt.Printf("\t%02d ~ %s ~ %d mods\n", i+1, pf.Name(), len(pf.ModSlugs()))
+	}
+
+	if len(profiles) == 0 {
+		fmt.Printf("\tNo profiles found. Put them in the profiles folder, wherever you've put your LethalLoader files.\n\n")
 	}
 
 	fmt.Print("\n")
