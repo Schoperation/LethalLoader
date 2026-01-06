@@ -38,6 +38,11 @@ func read[M Model](fileName string) (map[string]M, error) {
 }
 
 func readAllInDir[M Model](dirName string) (map[string]M, error) {
+	err := os.MkdirAll(dirName, 0755)
+	if err != nil {
+		return nil, err
+	}
+
 	entries, err := os.ReadDir(dirName)
 	if err != nil {
 		return nil, err

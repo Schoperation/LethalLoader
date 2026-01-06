@@ -2,7 +2,7 @@ package main
 
 /*
    LethalLoader
-   Copyright (C) 2024-25 Schoperation
+   Copyright (C) 2024-26 Schoperation
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ func main() {
 
 	firstTimeSetupTask := task.NewFirstTimeSetupTask(mainConfigTranslator, gameFilesDao, profileTranslator)
 	newProfileTask := task.NewNewProfileTask(profileTranslator)
-	deleteProfileTask := task.NewDeleteProfileTask(profileTranslator)
+	deleteProfileTask := task.NewDeleteProfileTask(mainConfigTranslator, profileTranslator)
 	searchTermTask := task.NewSearchTermTask()
 	addModTask := task.NewAddModToProfileTask(listingTranslator, modTranslator, gameFilesTranslator, profileTranslator)
 	removeModTask := task.NewRemoveModTask(profileTranslator, gameFilesTranslator)

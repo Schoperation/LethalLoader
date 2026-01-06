@@ -17,7 +17,7 @@ func (page AboutPage) Show(args any) (viewer.OptionsResult, error) {
 
 	fmt.Print(`
 LethalLoader
-Copyright (C) 2024-25 Schoperation
+Copyright (C) 2024-26 Schoperation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Lethal Company Copyright (C) 2023-25 Zeekerss
-Thunderstore Copyright (C) 2025 Thunderstore Team
+Lethal Company Copyright (C) 2023-26 Zeekerss
+Thunderstore Copyright (C) 2024-26 Thunderstore Team
 
 LethalLoader is in no way affiliated with Lethal Company or Thunderstore.`)
 
